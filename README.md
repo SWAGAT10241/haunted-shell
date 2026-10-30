@@ -175,9 +175,10 @@ make format
 
 ---
 
-## 🏛️ System Architecture
+## 🏛️ System Architecture & AI Agent Guidelines
 
-For a deep-dive technical overview of our dual-inference pipeline, process safety boundaries, Graphify knowledge topology, and component sequence flows, see [ARCHITECTURE.md](ARCHITECTURE.md).
+- Technical architecture, dual-inference pipeline, and sequence diagrams: [ARCHITECTURE.md](ARCHITECTURE.md)
+- Autonomous AI agent contributor rules and pair programming guide: [AGENTS.md](AGENTS.md)
 
 ---
 
