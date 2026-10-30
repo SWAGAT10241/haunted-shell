@@ -175,6 +175,13 @@ make format
 
 ---
 
+## 🏛️ System Architecture & AI Agent Guidelines
+
+- Technical architecture, dual-inference pipeline, and sequence diagrams: [ARCHITECTURE.md](ARCHITECTURE.md)
+- Autonomous AI agent contributor rules and pair programming guide: [AGENTS.md](AGENTS.md)
+
+---
+
 ## 🌿 Branching Strategy & Development Workflow
 
 This repository follows a structured Git branching workflow:
