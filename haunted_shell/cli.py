@@ -240,7 +240,7 @@ def shell(ctx):
                     exit_code = 1
             else:
                 try:
-                    res = subprocess.run(cmd, shell=True)
+                    res = subprocess.run(cmd, shell=True)  # nosec B602
                     exit_code = res.returncode
                 except Exception as err:
                     print(f"Execution error: {err}", file=sys.stderr)

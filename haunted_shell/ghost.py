@@ -69,7 +69,7 @@ class GhostEngine:
             req = urllib.request.Request(
                 endpoint, headers={"User-Agent": "haunted-shell/1.0.0"}, method="GET"
             )
-            with urllib.request.urlopen(req, timeout=0.5) as resp:
+            with urllib.request.urlopen(req, timeout=0.5) as resp:  # nosec B310
                 if resp.status == 200:
                     data = json.loads(resp.read().decode("utf-8"))
                     models = [m.get("name", "") for m in data.get("models", [])]
@@ -103,7 +103,7 @@ class GhostEngine:
                 headers={"Content-Type": "application/json", "User-Agent": "haunted-shell/1.0.0"},
                 method="POST",
             )
-            with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+            with urllib.request.urlopen(req, timeout=self.timeout) as resp:  # nosec B310
                 if resp.status == 200:
                     raw_data = resp.read().decode("utf-8")
                     result = json.loads(raw_data)

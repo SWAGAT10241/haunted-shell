@@ -51,7 +51,7 @@ def run_doctor(config: HauntedConfig) -> Dict[str, Any]:
                 f"{config.ollama_url.rstrip('/')}/api/tags",
                 headers={"User-Agent": "haunted-shell/1.0.0"},
             )
-            with urllib.request.urlopen(req, timeout=0.8) as resp:
+            with urllib.request.urlopen(req, timeout=0.8) as resp:  # nosec B310
                 if resp.status == 200:
                     data = json.loads(resp.read().decode("utf-8"))
                     ollama_models = [m.get("name", "") for m in data.get("models", [])]
