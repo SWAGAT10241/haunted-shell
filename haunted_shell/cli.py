@@ -18,6 +18,7 @@ from .ghost import GhostEngine
 from .logger import setup_logger
 from .personas import available_persona_names, get_persona, list_personas
 from .shell_hook import generate_hook
+from .modifiers import TEXT_MODIFIERS, TONE_MODIFIERS, CustomRuleEngine
 from .ui import (
     BLOOD_RED,
     BOLD,
@@ -84,6 +85,13 @@ def _save_readline(history_path: str) -> None:
 @click.option("--no-color", is_flag=True, default=False, help="Disable ANSI colors and styling.")
 @click.option("--debug", is_flag=True, default=False, help="Enable debug logging output to stderr.")
 @click.option(
+    "--modifier",
+    "-M",
+    "modifiers",
+    multiple=True,
+    help="Active modifier (e.g. matrix, cursed, eldritch, sarcastic, morse, whisper).",
+)
+@click.option(
     "--config",
     "-c",
     "config_file",
@@ -92,7 +100,7 @@ def _save_readline(history_path: str) -> None:
     help="Path to custom configuration JSON file.",
 )
 @click.pass_context
-def cli(ctx, persona, offline, model, glitch, no_color, debug, config_file):
+def cli(ctx, persona, offline, model, glitch, no_color, debug, modifiers, config_file):
     """👻 haunted-shell: A terminal possessed by open-source AI."""
     ctx.ensure_object(dict)
 
@@ -111,6 +119,8 @@ def cli(ctx, persona, offline, model, glitch, no_color, debug, config_file):
         overrides["no_color"] = True
     if debug:
         overrides["debug"] = True
+    if modifiers:
+        overrides["modifiers"] = list(modifiers)
 
     config: HauntedConfig = load_config(config_path=cfg_path, **overrides)
     setup_logger(debug=config.debug)
@@ -430,6 +440,48 @@ def config_init(ctx):
 def config_path():
     """Print the path to the configuration file."""
     click.echo(str(get_default_config_path()))
+
+
+@cli.group()
+def modifier():
+    """Inspect or configure custom spectral modifiers."""
+    pass
+
+
+@modifier.command("list")
+def modifier_list():
+    """List all available visual text modifiers and tone modifiers."""
+    lines = [
+        f"{BOLD}Visual / Text Modifiers:{RESET}",
+    ]
+    for name in TEXT_MODIFIERS:
+        lines.append(f"  • {SPECTRAL_CYAN}{name:<12}{RESET} - Visual glitch or aesthetic transform")
+    lines.append("")
+    lines.append(f"{BOLD}Personality / Tone Modifiers:{RESET}")
+    for name, obj in TONE_MODIFIERS.items():
+        lines.append(f"  • {MARIGOLD_AMBER}{name:<12}{RESET} - {obj.description}")
+    lines.append("")
+    lines.append(f"{DIM}Usage: haunt --modifier <name> shell{RESET}")
+    lines.append(f"{DIM}Example: haunt -M matrix -M eldritch whisper 'docker run'{RESET}")
+    spectral_box("AVAILABLE SPECTRAL MODIFIERS", lines, color=GHOST_PURPLE)
+
+
+@modifier.command("init")
+@click.option(
+    "--output",
+    "-o",
+    default=None,
+    help="Target file path (defaults to ~/.config/haunted-shell/modifiers.json)",
+)
+def modifier_init(output):
+    """Generate a sample custom command-reaction rule file."""
+    target = output or os.path.expanduser("~/.config/haunted-shell/modifiers.json")
+    engine = CustomRuleEngine()
+    engine.export_sample(target)
+    click.echo(f"{SLIME_GREEN}✓ Sample custom command rules written to {target}{RESET}")
+    click.echo(
+        f"{DIM}Edit this JSON file to map commands (e.g. docker, npm, cargo) to custom hauntings!{RESET}"
+    )
 
 
 def main():

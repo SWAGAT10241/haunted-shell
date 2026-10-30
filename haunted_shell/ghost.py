@@ -16,6 +16,7 @@ from .config import HauntedConfig
 from .logger import logger
 from .personas import BasePersona, get_persona
 from .ui import zalgo
+from .modifiers import apply_all_modifiers, CustomRuleEngine, TONE_MODIFIERS
 
 
 class GhostEngine:
@@ -30,6 +31,7 @@ class GhostEngine:
         force_offline: Optional[bool] = None,
         glitch_intensity: Optional[int] = None,
         timeout: Optional[float] = None,
+        modifiers: Optional[List[str]] = None,
     ):
         cfg = config or HauntedConfig()
         self.persona: BasePersona = get_persona(persona_name or cfg.persona)
@@ -40,6 +42,8 @@ class GhostEngine:
             glitch_intensity if glitch_intensity is not None else cfg.glitch_intensity
         )
         self.timeout: float = timeout if timeout is not None else cfg.ollama_timeout
+        self.modifiers: List[str] = [m.lower().strip() for m in (modifiers or cfg.modifiers or [])]
+        self.custom_rules: CustomRuleEngine = CustomRuleEngine()
 
         self._has_local_model_cache: Optional[bool] = None
         self._last_probe_time: float = 0.0
@@ -140,20 +144,33 @@ class GhostEngine:
         ctx = context or {}
         cmd_clean = cmd.strip()
 
-        # If local model is available and not forced offline, try LLM generation
+        # 1. Check custom command rules first
+        custom_hit = self.custom_rules.match(cmd_clean)
+        if custom_hit:
+            return self._decorate(custom_hit)
+
+        # 2. If local model is available and not forced offline, try LLM generation
         if self.has_local_model and not self.force_offline:
             cwd_name = os.path.basename(os.getcwd()) or "/"
+            tone_addons = [
+                TONE_MODIFIERS[m].prompt_addon
+                for m in self.modifiers
+                if m in TONE_MODIFIERS
+            ]
+            tone_instruction = f" Style instruction: {' '.join(tone_addons)}" if tone_addons else ""
+
             prompt = (
                 f"The mortal just ran this shell command: '{cmd_clean}'. "
                 f"Exit code: {exit_code}. "
                 f"Directory: {cwd_name}. "
+                f"{tone_instruction} "
                 f"Whisper your reaction directly to them."
             )
             llm_response = self.query_local_llm(prompt)
             if llm_response:
                 return self._decorate(llm_response)
 
-        # Fallback to rich offline persona engine
+        # 3. Fallback to rich offline persona engine
         commentary = self.persona.generate_commentary(cmd_clean, exit_code, ctx)
         return self._decorate(commentary)
 
@@ -169,7 +186,10 @@ class GhostEngine:
         return self._decorate(self.persona.converse(user_utterance))
 
     def _decorate(self, text: str) -> str:
-        """Apply glitch / zalgo transformation if enabled."""
+        """Apply active modifiers (tones and text effects) to the spectral text."""
+        if self.modifiers:
+            return apply_all_modifiers(text, active_modifiers=self.modifiers, glitch_intensity=self.glitch_intensity)
+
         if self.glitch_intensity > 0:
             return zalgo(text, intensity=self.glitch_intensity)
         return text
@@ -189,6 +209,7 @@ class GhostEngine:
 
         return {
             "persona": self.persona.name,
+            "modifiers": self.modifiers,
             "engine_mode": "Local Open-Weight Model"
             if self.has_local_model
             else "Offline Local Spectral Engine",
