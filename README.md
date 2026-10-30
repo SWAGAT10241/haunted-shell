@@ -175,5 +175,13 @@ make format
 
 ---
 
+## 🌿 Branching Strategy & Development Workflow
+
+This repository follows a structured Git branching workflow:
+- **`main` (Protected):** Production-ready, stable release branch. Protected against direct force-pushes and deletions; all pull requests must pass multi-OS automated CI and security scans.
+- **`develop`:** Active development branch for upcoming features, persona refinements, and documentation improvements.
+
+---
+
 ## 📜 License
 MIT License. Built for **Hacktoberfest 2026: Open-Source AI Challenge Week 4** on DEV.
