@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+export PYTHONPATH="$REPO_DIR:$PYTHONPATH"
+python3 -m haunted_shell.cli "$@" 2> >(grep -v -E "hashlib\.py|blake2|unsupported hash type|Traceback \(most recent call last\):|\^\^\^|globals\(\)\[__func_name\]|return __get_builtin_constructor|ERROR:root:code for hash" >&2)
