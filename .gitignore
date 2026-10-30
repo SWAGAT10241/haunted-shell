@@ -31,3 +31,6 @@ htmlcov/
 # Temporary & Environment
 .env
 .env.local
+
+# Graphify
+graphify-out/

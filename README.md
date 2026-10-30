@@ -175,6 +175,12 @@ make format
 
 ---
 
+## 🏛️ System Architecture
+
+For a deep-dive technical overview of our dual-inference pipeline, process safety boundaries, Graphify knowledge topology, and component sequence flows, see [ARCHITECTURE.md](ARCHITECTURE.md).
+
+---
+
 ## 🌿 Branching Strategy & Development Workflow
 
 This repository follows a structured Git branching workflow:
