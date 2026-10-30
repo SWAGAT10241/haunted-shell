@@ -42,10 +42,7 @@ class BasePersona(ABC):
 
     @abstractmethod
     def generate_commentary(
-        self,
-        cmd: str,
-        exit_code: int = 0,
-        context: Optional[Dict[str, Any]] = None
+        self, cmd: str, exit_code: int = 0, context: Optional[Dict[str, Any]] = None
     ) -> str:
         """Generate offline commentary on a command."""
         pass

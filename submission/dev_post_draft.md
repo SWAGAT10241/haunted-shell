@@ -1,7 +1,7 @@
 ---
 title: "Haunted Shell: Possessing Your Terminal with Local Open-Weight AI (Ghost in the Machine)"
 published: false
-description: "A terminal companion possessed by open-source AI, whispering eerie lore, composing Día de los Muertos calaveritas, and exorcising real OS zombie processes 100% offline."
+description: "A production-grade terminal companion possessed by open-source AI, whispering eerie lore, composing Día de los Muertos calaveritas, and exorcising real OS zombie processes 100% offline."
 tags: "hf26challenge, opensource, ai, python"
 canonical_url: ""
 cover_image: "https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/events/cover_image/82/e4131c99-f797-42be-95ef-b55e1f04255f.png"
@@ -15,7 +15,7 @@ cover_image: "https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/events/c
 
 For this week's **"Ghost in the Machine"** theme, sitting right between Halloween and Día de los Muertos, I wanted to take the concept literally: **What if a supernatural spirit lived inside your terminal, directly possessing your shell?**
 
-Introducing **`haunted-shell`** — an open-source, local-first possessed terminal companion. 
+Introducing **`haunted-shell`** — an open-source, production-grade, local-first possessed terminal companion. 
 
 Whenever you run a command in your everyday shell (`rm -rf`, `git push --force`, `kill -9`, `cat`, `whoami`), an eerie spirit materializes, analyzing your command, exit code, and environment to whisper spooky commentary, roast dangerous commands, compose satirical *calaveritas literarias* in honor of computing ancestors, or scan the operating system's process table for real defunct **zombie processes** to exorcise.
 
@@ -46,7 +46,7 @@ For a shell companion, **open-source AI and local inference are not just nice-to
 ### Demo & Live Experience
 
 #### 1. Interactive Possession Shell
-Running `haunt shell` launches a possessed subshell:
+Running `haunt shell` launches a possessed subshell with persistent readline history and directory tracking:
 
 ```console
       .-.
@@ -56,8 +56,8 @@ Running `haunt shell` launches a possessed subshell:
        `~~~'     [ Possessed by local open-weight AI. Air-gap verified. ]
 
 👻 Spirit: The Poltergeist of Purgatory
-🔒 Air-gap Security: Verified Local-Only (Offline Local Spectral Engine)
-💡 Type regular commands (e.g. ls, git status, date). Type 'exit' to escape.
+🔒 Air-gap Security: Verified Local-Only (Local Open-Weight Model [gemma2:2b])
+💡 Type regular commands or ':help' for builtins. Type 'exit' to escape.
 
 [haunted-shell] 👻 rm -rf old_drafts.txt
   👻  Gone. Banished to /dev/null. But in the graveyard of your disk, their sectors still whisper.
@@ -70,7 +70,7 @@ Running `haunt shell` launches a possessed subshell:
 ```
 
 #### 2. Día de los Muertos Calaveras
-Switching to `--persona calavera` turns your terminal into a remembrance altar:
+Switching to `--persona calavera` (or typing `:persona calavera` live in the shell) turns your terminal into a remembrance altar:
 
 ```console
 [haunted-shell] 💀 git commit -m "Refactor parser"
@@ -78,8 +78,8 @@ Switching to `--persona calavera` turns your terminal into a remembrance altar:
       '¡No te apures, dev, por ese merge conflict / que en el camposanto todo queda fixed!'
 ```
 
-#### 3. Real OS Zombie Process Exorcism
-`haunt exorcise` inspects the host operating system's kernel process table using `psutil`, hunting for true zombie processes, orphaned daemons, and memory-devouring wraiths:
+#### 3. Real OS Zombie Process Exorcism with Safety Guardrails
+`haunt exorcise` inspects the host operating system's kernel process table using `psutil`, hunting for true zombie processes, orphaned daemons, and memory-devouring wraiths, with built-in protections preventing accidental termination of `PID 1` or host shells:
 
 ```console
 $ haunt exorcise
@@ -98,16 +98,45 @@ $ haunt exorcise
 To banish a restless PID, run: haunt exorcise --banish <PID>
 ```
 
-#### 4. Hooking Directly Into Your Everyday Prompt
-You don't even need to stay in a subshell. With `eval "$(haunt hook zsh)"` added to your `~/.zshrc`, your daily Zsh terminal automatically inherits the possession on every command you execute!
+#### 4. Universal Shell Hooks (Zsh, Bash & Fish)
+You don't even need to stay in a subshell. With `haunt hook`, your everyday terminal prompt automatically inherits the possession on every command you execute:
+```bash
+# For Zsh (~/.zshrc):
+eval "$(haunt hook zsh)"
+
+# For Bash (~/.bashrc):
+eval "$(haunt hook bash)"
+
+# For Fish (~/.config/fish/config.fish):
+haunt hook fish | source
+```
+
+#### 5. Environment Diagnostics (`haunt doctor`)
+`haunt doctor` performs a rapid health audit of the host system, checking local Ollama connectivity, downloaded open-weight models, terminal color capability, and configuration status:
+```console
+$ haunt doctor
+┌─[ HAUNTED-SHELL SYSTEM DIAGNOSTICS ]─────────────────────────────────────┐
+│ Platform: Darwin 27.2.0 (arm64)                                          │
+│ Python:   3.14.3 (✓ Supported)                                           │
+│ Terminal: Interactive TTY | Colors: ✓ Enabled | Size: 80x24              │
+│                                                                          │
+│ Active Persona:  poltergeist                                             │
+│ Configured Model: gemma2:2b                                              │
+│ Config File:      ~/.config/haunted-shell/config.json (Using Defaults)   │
+│                                                                          │
+│ Local AI Server (http://localhost:11434):                                │
+│   ✓ Ollama reachable (1 model(s) available)                              │
+│     Available: gemma2:2b                                                 │
+└──────────────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
 ### Technical Architecture & How It Works
 
-`haunted-shell` was designed with clean Unix philosophy in mind:
+`haunted-shell` was designed with clean Unix philosophy, strict typing, and resilient offline degradation:
 
-```
+```plaintext
 ┌────────────────────────────────────────────────────────┐
 │                   User Shell Command                   │
 └───────────────────────────┬────────────────────────────┘
@@ -131,8 +160,12 @@ You don't even need to stay in a subshell. With `eval "$(haunt hook zsh)"` added
 
 - **Open-Weight Model Integration:** Connects out of the box to local open-weight models (like **Google Gemma 2:2B** or **Llama 3.2**) hosted locally via Ollama (`http://localhost:11434`) or any local OpenAI-compatible endpoint.
 - **Zero-Dependency Fallback Engine:** If no local model server is currently active, it automatically falls back to an offline semantic and poetic generator, ensuring it runs instantly on any machine with zero setup friction.
-- **Glitch & Typewriter Effects:** Uses ANSI escape palettes, timed typewriter delays, and subtle Unicode combining diacritics (zalgo) to simulate an unstable, possessed phosphor screen.
-- **Kernel Process Scanner:** Leverages `psutil` to inspect actual OS process states, lifetimes, and parent-child hierarchies.
+- **Production Codebase:** 
+  - Complete **PEP 561** typing with `py.typed` and zero mypy errors.
+  - Formatted and linted with **Ruff**.
+  - Comprehensive unit test suite (59 tests passing, >75% coverage).
+  - XDG configuration management (`~/.config/haunted-shell/config.json`).
+  - GitHub Actions CI matrix testing across Ubuntu and macOS.
 
 ---
 
@@ -143,6 +176,6 @@ You don't even need to stay in a subshell. With `eval "$(haunt hook zsh)"` added
 
 ### Code Repository
 The project is completely open source under the MIT license:  
-👉 **[GitHub: haunted-shell](https://github.com/swagatsouravdhar/haunted-shell)**
+👉 **[GitHub: haunted-shell](https://github.com/SWAGAT10241/haunted-shell)**
 
 *Happy Halloween and ¡Feliz Día de los Muertos! May your terminals stay spooky and your memory leaks find peace.*

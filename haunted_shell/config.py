@@ -16,6 +16,7 @@ CONFIG_FILE_NAME = "config.json"
 @dataclass
 class HauntedConfig:
     """Application configuration for haunted-shell."""
+
     persona: str = "poltergeist"
     model: str = "gemma2:2b"
     offline: bool = False
@@ -47,10 +48,7 @@ def get_default_config_path() -> Path:
     return base / CONFIG_DIR_NAME / CONFIG_FILE_NAME
 
 
-def load_config(
-    config_path: Optional[Path] = None,
-    **cli_overrides: Any
-) -> HauntedConfig:
+def load_config(config_path: Optional[Path] = None, **cli_overrides: Any) -> HauntedConfig:
     """
     Load configuration with precedence:
     CLI overrides > Environment variables > Config file > Defaults

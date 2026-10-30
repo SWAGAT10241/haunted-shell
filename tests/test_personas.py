@@ -30,7 +30,6 @@ class CustomPersona(BasePersona):
 
 
 class TestPersonas(unittest.TestCase):
-
     def test_poltergeist(self):
         p = PoltergeistPersona()
         self.assertEqual(p.name, "poltergeist")
@@ -46,8 +45,17 @@ class TestPersonas(unittest.TestCase):
         self.assertEqual(p.prompt_symbol, "💀")
         comment = p.generate_commentary("git commit -m 'feat'", exit_code=0)
         self.assertTrue(len(comment) > 0)
+        err_comment = p.generate_commentary("rm nonexistent", exit_code=1)
+        self.assertTrue(len(err_comment) > 0)
+        rm_comment = p.generate_commentary("rm file.txt", exit_code=0)
+        self.assertTrue(len(rm_comment) > 0)
+        who_comment = p.generate_commentary("whoami", exit_code=0)
+        self.assertTrue(len(who_comment) > 0)
+        empty_comment = p.generate_commentary("", exit_code=0)
+        self.assertTrue(len(empty_comment) > 0)
         conv = p.converse("hello")
         self.assertTrue(len(conv) > 0)
+        self.assertIn("cempasúchil", p.get_farewell())
 
     def test_unix_elder(self):
         p = UnixElderPersona()
@@ -55,6 +63,17 @@ class TestPersonas(unittest.TestCase):
         self.assertEqual(p.prompt_symbol, "#")
         comment = p.generate_commentary("cat file.txt", exit_code=0)
         self.assertTrue(len(comment) > 0)
+        err_comment = p.generate_commentary("make", exit_code=2)
+        self.assertTrue(len(err_comment) > 0)
+        rm_comment = p.generate_commentary("rm file.txt", exit_code=0)
+        self.assertTrue(len(rm_comment) > 0)
+        who_comment = p.generate_commentary("whoami", exit_code=0)
+        self.assertTrue(len(who_comment) > 0)
+        empty_comment = p.generate_commentary("", exit_code=0)
+        self.assertTrue(len(empty_comment) > 0)
+        conv = p.converse("status")
+        self.assertTrue(len(conv) > 0)
+        self.assertIn("Teletype", p.get_farewell())
 
     def test_registry(self):
         names = available_persona_names()

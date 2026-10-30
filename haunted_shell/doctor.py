@@ -49,7 +49,7 @@ def run_doctor(config: HauntedConfig) -> Dict[str, Any]:
         try:
             req = urllib.request.Request(
                 f"{config.ollama_url.rstrip('/')}/api/tags",
-                headers={"User-Agent": "haunted-shell/1.0.0"}
+                headers={"User-Agent": "haunted-shell/1.0.0"},
             )
             with urllib.request.urlopen(req, timeout=0.8) as resp:
                 if resp.status == 200:
@@ -78,19 +78,27 @@ def run_doctor(config: HauntedConfig) -> Dict[str, Any]:
         f"Configured Model: {BOLD}{config.model}{RESET}",
         f"Config File:      {cfg_path} ({'Found' if cfg_exists else 'Using Defaults'})",
         "",
-        f"Local AI Server ({config.ollama_url}):"
+        f"Local AI Server ({config.ollama_url}):",
     ]
 
     if config.offline:
-        lines.append(f"  {MARIGOLD_AMBER}• Forced Offline Mode Active (Zero Local/Remote AI Calls){RESET}")
+        lines.append(
+            f"  {MARIGOLD_AMBER}• Forced Offline Mode Active (Zero Local/Remote AI Calls){RESET}"
+        )
     elif ollama_ok:
-        lines.append(f"  {SLIME_GREEN}✓ Ollama reachable ({len(ollama_models)} model(s) available){RESET}")
+        lines.append(
+            f"  {SLIME_GREEN}✓ Ollama reachable ({len(ollama_models)} model(s) available){RESET}"
+        )
         if ollama_models:
             models_sample = ", ".join(ollama_models[:3])
             lines.append(f"    Available: {DIM}{models_sample}{RESET}")
     else:
-        lines.append(f"  {BLOOD_RED}✗ Not responding: {ollama_error or 'Connection refused'}{RESET}")
-        lines.append(f"    {DIM}haunted-shell gracefully defaults to 100% offline rule-based neural persona.{RESET}")
+        lines.append(
+            f"  {BLOOD_RED}✗ Not responding: {ollama_error or 'Connection refused'}{RESET}"
+        )
+        lines.append(
+            f"    {DIM}haunted-shell gracefully defaults to 100% offline rule-based neural persona.{RESET}"
+        )
 
     spectral_box("HAUNTED-SHELL SYSTEM DIAGNOSTICS", lines, color=SPECTRAL_CYAN)
     return results

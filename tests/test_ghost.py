@@ -11,7 +11,6 @@ from haunted_shell.ghost import GhostEngine
 
 
 class TestGhostEngine(unittest.TestCase):
-
     def test_init_defaults(self):
         engine = GhostEngine(force_offline=True, glitch_intensity=0)
         self.assertEqual(engine.persona.name, "poltergeist")
@@ -21,7 +20,9 @@ class TestGhostEngine(unittest.TestCase):
     def test_offline_haunt_command(self):
         engine = GhostEngine(force_offline=True, glitch_intensity=0)
         res = engine.haunt_command("rm -rf node_modules", exit_code=0)
-        self.assertTrue(any(w in res.lower() for w in ["void", "ashes", "bytes", "dev/null", "graveyard"]))
+        self.assertTrue(
+            any(w in res.lower() for w in ["void", "ashes", "bytes", "dev/null", "graveyard"])
+        )
 
     def test_offline_error_command(self):
         engine = GhostEngine(force_offline=True, glitch_intensity=0)

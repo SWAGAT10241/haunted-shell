@@ -10,7 +10,6 @@ from haunted_shell.cli import cli
 
 
 class TestCLI(unittest.TestCase):
-
     def setUp(self):
         self.runner = CliRunner()
 
@@ -29,10 +28,21 @@ class TestCLI(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
         self.assertTrue(len(result.output.strip()) > 0)
 
+    def test_whisper_with_debug_and_no_color(self):
+        result = self.runner.invoke(
+            cli, ["--debug", "--no-color", "--offline", "whisper", "git status"]
+        )
+        self.assertEqual(result.exit_code, 0)
+
     def test_hook_zsh(self):
         result = self.runner.invoke(cli, ["hook", "zsh"])
         self.assertEqual(result.exit_code, 0)
         self.assertIn("add-zsh-hook", result.output)
+
+    def test_hook_bash(self):
+        result = self.runner.invoke(cli, ["hook", "bash"])
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn("PROMPT_COMMAND", result.output)
 
     def test_hook_fish(self):
         result = self.runner.invoke(cli, ["hook", "fish"])
@@ -80,3 +90,25 @@ class TestCLI(unittest.TestCase):
         result = self.runner.invoke(cli, ["config", "path"])
         self.assertEqual(result.exit_code, 0)
         self.assertIn("config.json", result.output)
+
+    def test_config_init(self):
+        import os
+        import tempfile
+        from pathlib import Path
+        from unittest.mock import patch
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp_cfg = Path(tmpdir) / "test_config.json"
+            with patch.dict(os.environ, {"HAUNTED_CONFIG_PATH": str(tmp_cfg)}):
+                result = self.runner.invoke(cli, ["config", "init"])
+                self.assertEqual(result.exit_code, 0)
+                self.assertIn("Default configuration written", result.output)
+                self.assertTrue(tmp_cfg.is_file())
+
+    def test_seance_dialogue(self):
+        # Provide dialogue inputs: a question then "farewell"
+        inputs = "What is the meaning of swap?\nfarewell\n"
+        result = self.runner.invoke(cli, ["--offline", "seance"], input=inputs)
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn("SÉANCE CHAMBER", result.output)
+        self.assertIn("Spirit:", result.output)

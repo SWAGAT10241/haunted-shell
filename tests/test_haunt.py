@@ -11,11 +11,15 @@ from haunted_shell.ui import get_banner, zalgo
 
 
 class TestHauntedShell(unittest.TestCase):
-
     def test_poltergeist_persona(self):
         engine = GhostEngine(persona_name="poltergeist", force_offline=True, glitch_intensity=0)
         whisper_rm = engine.haunt_command("rm -rf old_secrets.txt", exit_code=0)
-        self.assertTrue(any(word in whisper_rm.lower() for word in ["void", "bytes", "ashes", "graveyard", "dev/null"]))
+        self.assertTrue(
+            any(
+                word in whisper_rm.lower()
+                for word in ["void", "bytes", "ashes", "graveyard", "dev/null"]
+            )
+        )
 
         whisper_err = engine.haunt_command("make build", exit_code=1)
         self.assertTrue(len(whisper_err) > 0)

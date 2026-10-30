@@ -36,7 +36,9 @@ class GhostEngine:
         self.model_name: str = model_name or cfg.model
         self.ollama_url: str = (ollama_url or cfg.ollama_url).rstrip("/")
         self.force_offline: bool = force_offline if force_offline is not None else cfg.offline
-        self.glitch_intensity: int = glitch_intensity if glitch_intensity is not None else cfg.glitch_intensity
+        self.glitch_intensity: int = (
+            glitch_intensity if glitch_intensity is not None else cfg.glitch_intensity
+        )
         self.timeout: float = timeout if timeout is not None else cfg.ollama_timeout
 
         self._has_local_model_cache: Optional[bool] = None
@@ -65,9 +67,7 @@ class GhostEngine:
         endpoint = f"{self.ollama_url}/api/tags"
         try:
             req = urllib.request.Request(
-                endpoint,
-                headers={"User-Agent": "haunted-shell/1.0.0"},
-                method="GET"
+                endpoint, headers={"User-Agent": "haunted-shell/1.0.0"}, method="GET"
             )
             with urllib.request.urlopen(req, timeout=0.5) as resp:
                 if resp.status == 200:
@@ -93,18 +93,15 @@ class GhostEngine:
             "options": {
                 "temperature": 0.85,
                 "num_predict": 75,
-            }
+            },
         }
 
         try:
             req = urllib.request.Request(
                 endpoint,
                 data=json.dumps(payload).encode("utf-8"),
-                headers={
-                    "Content-Type": "application/json",
-                    "User-Agent": "haunted-shell/1.0.0"
-                },
-                method="POST"
+                headers={"Content-Type": "application/json", "User-Agent": "haunted-shell/1.0.0"},
+                method="POST",
             )
             with urllib.request.urlopen(req, timeout=self.timeout) as resp:
                 if resp.status == 200:
@@ -123,17 +120,21 @@ class GhostEngine:
         """Strip enclosing quotes, markdown wrappers, and prefix labels."""
         cleaned = text.strip()
         for _ in range(2):
-            if (cleaned.startswith('"') and cleaned.endswith('"')) or (cleaned.startswith("'") and cleaned.endswith("'")):
+            if (cleaned.startswith('"') and cleaned.endswith('"')) or (
+                cleaned.startswith("'") and cleaned.endswith("'")
+            ):
                 cleaned = cleaned[1:-1].strip()
-            cleaned = re.sub(r'^(Spirit|Ghost|Poltergeist|Calavera|UnixElder):\s*', '', cleaned, flags=re.IGNORECASE).strip()
-        cleaned = re.sub(r'\s+', ' ', cleaned)
+            cleaned = re.sub(
+                r"^(Spirit|Ghost|Poltergeist|Calavera|UnixElder):\s*",
+                "",
+                cleaned,
+                flags=re.IGNORECASE,
+            ).strip()
+        cleaned = re.sub(r"\s+", " ", cleaned)
         return cleaned
 
     def haunt_command(
-        self,
-        cmd: str,
-        exit_code: int = 0,
-        context: Optional[Dict[str, Any]] = None
+        self, cmd: str, exit_code: int = 0, context: Optional[Dict[str, Any]] = None
     ) -> str:
         """Generate a haunting spectral response to a user shell command."""
         ctx = context or {}
@@ -188,11 +189,13 @@ class GhostEngine:
 
         return {
             "persona": self.persona.name,
-            "engine_mode": "Local Open-Weight Model" if self.has_local_model else "Offline Local Spectral Engine",
+            "engine_mode": "Local Open-Weight Model"
+            if self.has_local_model
+            else "Offline Local Spectral Engine",
             "model_configured": self.model_name,
             "airgap_safe": True,
             "external_telemetry_disabled": True,
             "can_run_fully_offline": True,
             "hardware_local_inference": True,
-            "host_network_isolated": not external_connected
+            "host_network_isolated": not external_connected,
         }

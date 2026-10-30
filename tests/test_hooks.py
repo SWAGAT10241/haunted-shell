@@ -8,7 +8,6 @@ from haunted_shell.shell_hook import generate_hook
 
 
 class TestShellHooks(unittest.TestCase):
-
     def test_zsh_hook(self):
         hook = generate_hook("zsh")
         self.assertIn("add-zsh-hook", hook)

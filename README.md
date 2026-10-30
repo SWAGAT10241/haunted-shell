@@ -23,9 +23,9 @@
 
 ## 🌒 What is `haunted-shell`?
 
-`haunted-shell` is an open-source, privacy-first terminal companion that **possesses your shell**. Whenever you execute commands (`git push`, `rm -rf`, `kill -9`, `cat`, `whoami`), an eerie spirit materializes in your terminal to whisper chilling commentary, compose Día de los Muertos *calaveritas literarias*, roast modern software bloat, and track down real zombie processes lurking in your OS process table.
+`haunted-shell` is an open-source, privacy-first, production-grade terminal companion that **possesses your shell**. Whenever you execute commands (`git push`, `rm -rf`, `kill -9`, `cat`, `whoami`), an eerie spirit materializes in your terminal to whisper chilling commentary, compose Día de los Muertos *calaveritas literarias*, roast modern software bloat, and track down real zombie processes lurking in your OS process table.
 
-Built with **open-source AI at its core**, `haunted-shell` connects directly to local open-weight models (such as **Google Gemma 2**, Llama, or Mistral via Ollama/llama.cpp) and includes a zero-dependency offline spectral engine that runs 100% locally with zero cloud telemetry.
+Built with **open-source AI at its core**, `haunted-shell` connects directly to local open-weight models (such as **Google Gemma 2**, Llama 3.2, or Mistral via Ollama/llama.cpp) and includes a zero-dependency offline spectral engine that runs 100% locally with zero cloud telemetry.
 
 ---
 
@@ -48,7 +48,7 @@ For a shell companion, **open-source and local AI is not just a feature—it is 
 
 ## 🔮 Three Spectral Personas
 
-You can summon different spirits to possess your shell using `--persona`:
+You can summon different spirits to possess your shell using `--persona` or on-the-fly in the REPL:
 
 | Persona | Theme | Description |
 |---|---|---|
@@ -58,12 +58,14 @@ You can summon different spirits to possess your shell using `--persona`:
 
 ---
 
-## ✨ Features
+## ✨ Production Features
 
-- **Interactive Possessed REPL (`haunt shell`):** Wraps your everyday shell. Run real commands; after each command finishes, the specter speaks with typewriter animations and subtle glitch/zalgo text effects.
+- **Interactive Possessed REPL (`haunt shell`):** Wraps your everyday shell with GNU readline history (`~/.haunted_history`), `cd` directory tracking, on-the-fly persona switching (`:persona <name>`), typewriter animations, and zalgo glitch rendering.
 - **Día de los Muertos Calaverita Generator:** Dynamic poetic remembrances honoring computing pioneers and poking fun at mortal developers facing merge conflicts.
-- **Real OS Zombie Process Exorcism (`haunt exorcise`):** Inspects the host operating system's process table via `psutil` to unearth true defunct zombie processes, memory-devouring wraiths, and abandoned daemons, rendering custom gothic epitaphs with the option to banish (`SIGTERM`/`SIGKILL`) them.
-- **Shell Hooks for Zsh & Bash (`haunt hook`):** Possess your daily terminal prompt automatically via `precmd`/`preexec` hooks without needing a subshell.
+- **Safe OS Zombie Process Exorcism (`haunt exorcise`):** Inspects the host process table via `psutil` to unearth true defunct zombie processes, memory-devouring wraiths, and abandoned daemons. Includes safety guardrails preventing banishing root/init (`PID 1`), parent terminal shell, or current process.
+- **Universal Shell Hooks (`haunt hook [zsh|bash|fish]`):** Seamlessly hooks into **Zsh**, **Bash**, or **Fish** to whisper eerie commentary after every executed prompt.
+- **Diagnostic Doctor (`haunt doctor`):** Audits local Python environment, terminal TTY and color capabilities, Ollama server reachability, and installed open-weight models.
+- **XDG Configuration System (`haunt config`):** Flexible configuration via `~/.config/haunted-shell/config.json`, environment variables (`HAUNTED_*`), and CLI overrides.
 - **Air-Gap Verification Audit (`haunt airgap`):** Audits and proves that all inference runs on local hardware with zero external cloud telemetry.
 - **Dual Inference Engine:** Seamlessly uses local open-weight models (Gemma 2 via Ollama) when available, and smoothly falls back to an offline rule/Markov spectral engine when completely air-gapped.
 
@@ -72,14 +74,14 @@ You can summon different spirits to possess your shell using `--persona`:
 ## 🚀 Quickstart
 
 ### 1. Installation
-Clone the repository and run:
+Clone the repository and install:
 ```bash
 git clone https://github.com/SWAGAT10241/haunted-shell.git
 cd haunted-shell
 pip install -r requirements.txt
 pip install -e .
 ```
-*(Or run directly via `./bin/haunt`)*
+*(Or execute directly via `./bin/haunt`)*
 
 ### 2. Enter the Possessed Shell
 ```bash
@@ -93,61 +95,65 @@ haunt --persona calavera shell
 haunt --persona unix-elder shell
 ```
 
-### 3. Exorcise Zombie Processes
+### 3. REPL Built-in Commands
+Inside the possessed shell session:
+```console
+[haunted-shell] 👻 :help              # Show REPL guidance
+[haunted-shell] 👻 :persona calavera  # Shift persona to Día de los Muertos on-the-fly
+[haunted-shell] 💀 :seance            # Open conversational séance chamber
+[haunted-shell] 💀 :exorcise          # Scan OS for zombie processes
+[haunted-shell] 💀 :clear             # Clear screen
+[haunted-shell] 💀 exit               # Banish spirit and exit cleanly
+```
+
+### 4. Exorcise Zombie Processes
 ```bash
 # Scan kernel process table for zombies and wraiths
 haunt exorcise
 
-# Banish a specific restless PID
-haunt exorcise --banish 1311
+# Banish a specific restless PID (safely guarded against PID 1 and self)
+haunt exorcise --banish 34646
 ```
 
-### 4. Possess Your Everyday Terminal (`~/.zshrc` / `~/.bashrc`)
-To make your everyday terminal possessed on every command:
+### 5. Hook Into Your Everyday Terminal (`zsh`, `bash`, or `fish`)
 ```bash
-# For Zsh:
+# For Zsh (~/.zshrc):
 eval "$(haunt hook zsh)"
 
-# For Bash:
+# For Bash (~/.bashrc):
 eval "$(haunt hook bash)"
+
+# For Fish (~/.config/fish/config.fish):
+haunt hook fish | source
 ```
 
-### 5. Verify Air-Gap Isolation
+### 6. System Diagnostics & Air-Gap Audit
 ```bash
+# Check local environment, terminal, and Ollama connection
+haunt doctor
+
+# Audit local-first zero-telemetry guarantee
 haunt airgap
 ```
 
 ---
 
-## 🖥️ Live Terminal Previews
+## 🛠️ Developer & CI Workflow
 
-### Possession on Common Commands
-```console
-[haunted-shell] 👻 rm -rf old_secrets.txt
-  👻  Gone. Banished to /dev/null. But in the graveyard of your disk, their sectors still whisper.
+A complete test suite and code quality suite is available:
 
-[haunted-shell] 👻 kill -9 4120
-  👻  A cold-blooded slaughter... PID 4120 extinguished in an instant. Its orphan spirit lingers in kernel space.
+```bash
+# Install developer tools
+make dev-install
 
-[haunted-shell] 💀 git commit -m "Fix memory leak"
-  💀  Estaba la Catrina sentada en el disco / viendo tus commits con sonrisa y pellizco:
-      '¡No te apures, dev, por ese merge conflict / que en el camposanto todo queda fixed!'
-```
+# Run all quality checks (Ruff lint, Mypy typecheck, Pytest)
+make check
 
-### Spectral Process Necropsy
-```console
-$ haunt exorcise
-┌─[ SPECTRAL PROCESS NECROPSY ]────────────────────────────────────────────────────┐
-│ Detected 3 restless entity/entities lurking in memory:                           │
-│                                                                                  │
-│ • PID 34646 [Memory Wraith] - Code Helper (Renderer)                             │
-│   Memory: 200.7 MB | Age: 36.2 mins                                              │
-│   "Devours 200.7 MB of physical memory like a restless devourer."                │
-│                                                                                  │
-│ • PID 41047 [Shadow Daemon] - language_server                                    │
-│   Memory: 201.7 MB | Age: 8.3 mins                                               │
-│   "Spawned in haste, abandoned in cold memory. It wanders kernel space..."       │
-└──────────────────────────────────────────────────────────────────────────────────┘
+# Run tests with code coverage analysis
+make test-cov
+
+# Format code with Ruff
+make format
 ```
 
 ---

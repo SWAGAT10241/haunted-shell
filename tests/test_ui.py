@@ -16,7 +16,6 @@ from haunted_shell.ui import (
 
 
 class TestUI(unittest.TestCase):
-
     def test_strip_ansi(self):
         colored = "\033[38;5;99mPossessed\033[0m"
         self.assertEqual(strip_ansi(colored), "Possessed")
@@ -52,6 +51,7 @@ class TestUI(unittest.TestCase):
     def test_toggle_color(self):
         set_color_enabled(False)
         from haunted_shell import ui
+
         self.assertEqual(ui.BOLD, "")
         self.assertEqual(ui.RESET, "")
 

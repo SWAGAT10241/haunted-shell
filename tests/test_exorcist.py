@@ -9,7 +9,6 @@ from haunted_shell.exorcist import Exorcist
 
 
 class TestExorcist(unittest.TestCase):
-
     def setUp(self):
         self.exorcist = Exorcist()
 

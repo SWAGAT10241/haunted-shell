@@ -11,7 +11,6 @@ from haunted_shell.config import HauntedConfig, load_config, save_config
 
 
 class TestConfig(unittest.TestCase):
-
     def test_default_config(self):
         cfg = HauntedConfig()
         self.assertEqual(cfg.persona, "poltergeist")
@@ -27,7 +26,7 @@ class TestConfig(unittest.TestCase):
             model="llama3.2",
             glitch_intensity=2,
             no_color=True,
-            debug=True
+            debug=True,
         )
         self.assertEqual(cfg.persona, "calavera")
         self.assertTrue(cfg.offline)

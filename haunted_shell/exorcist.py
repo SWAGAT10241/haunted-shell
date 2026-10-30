@@ -22,7 +22,13 @@ EPITAPHS = [
 ]
 
 PROTECTED_NAMES: Set[str] = {
-    "launchd", "systemd", "init", "kernel_task", "kthreadd", "haunted-shell", "haunt"
+    "launchd",
+    "systemd",
+    "init",
+    "kernel_task",
+    "kthreadd",
+    "haunted-shell",
+    "haunt",
 }
 
 
@@ -52,71 +58,83 @@ class Exorcist:
         spirits: List[Dict[str, Any]] = []
         now = time.time()
 
-        for proc in psutil.process_iter(['pid', 'name', 'status', 'create_time', 'memory_info', 'ppid']):
+        for proc in psutil.process_iter(
+            ["pid", "name", "status", "create_time", "memory_info", "ppid"]
+        ):
             try:
                 info = proc.info
-                status = info.get('status')
-                pid = info.get('pid')
+                status = info.get("status")
+                pid = info.get("pid")
                 if pid is None or pid <= 1:
                     continue
 
-                name = info.get('name') or "unknown_specter"
-                create_time = info.get('create_time') or now
+                name = info.get("name") or "unknown_specter"
+                create_time = info.get("create_time") or now
                 age_minutes = max(0.0, (now - create_time) / 60.0)
 
-                mem_info = info.get('memory_info')
+                mem_info = info.get("memory_info")
                 mem_bytes = mem_info.rss if mem_info else 0
                 mem_mb = mem_bytes / (1024 * 1024)
 
                 is_zombie = (status == psutil.STATUS_ZOMBIE) or ("defunct" in name.lower())
-                is_wraith = (mem_mb > 600)  # Heavy memory devourer (> 600MB)
+                is_wraith = mem_mb > 600  # Heavy memory devourer (> 600MB)
 
                 if is_zombie:
-                    spirits.append({
-                        "pid": pid,
-                        "name": name,
-                        "type": "Zombie (Defunct)",
-                        "age_min": round(age_minutes, 1),
-                        "mem_mb": round(mem_mb, 1),
-                        "epitaph": random.choice(EPITAPHS),
-                        "danger": "HIGH"
-                    })
+                    spirits.append(
+                        {
+                            "pid": pid,
+                            "name": name,
+                            "type": "Zombie (Defunct)",
+                            "age_min": round(age_minutes, 1),
+                            "mem_mb": round(mem_mb, 1),
+                            "epitaph": random.choice(EPITAPHS),
+                            "danger": "HIGH",
+                        }
+                    )
                 elif is_wraith and len(spirits) < limit:
-                    spirits.append({
-                        "pid": pid,
-                        "name": name,
-                        "type": "Memory Wraith",
-                        "age_min": round(age_minutes, 1),
-                        "mem_mb": round(mem_mb, 1),
-                        "epitaph": f"Devours {round(mem_mb, 1)} MB of physical memory like a restless devourer.",
-                        "danger": "LOW"
-                    })
+                    spirits.append(
+                        {
+                            "pid": pid,
+                            "name": name,
+                            "type": "Memory Wraith",
+                            "age_min": round(age_minutes, 1),
+                            "mem_mb": round(mem_mb, 1),
+                            "epitaph": f"Devours {round(mem_mb, 1)} MB of physical memory like a restless devourer.",
+                            "danger": "LOW",
+                        }
+                    )
             except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
                 continue
 
         # If few zombies/wraiths, supplement with top background daemons
         if len(spirits) < 3:
-            for proc in psutil.process_iter(['pid', 'name', 'status', 'create_time', 'memory_info']):
+            for proc in psutil.process_iter(
+                ["pid", "name", "status", "create_time", "memory_info"]
+            ):
                 try:
                     info = proc.info
-                    pid = info.get('pid')
-                    if pid is None or pid <= 1 or pid in [s['pid'] for s in spirits]:
+                    pid = info.get("pid")
+                    if pid is None or pid <= 1 or pid in [s["pid"] for s in spirits]:
                         continue
-                    name = info.get('name') or "daemon"
-                    mem_info = info.get('memory_info')
+                    name = info.get("name") or "daemon"
+                    mem_info = info.get("memory_info")
                     mem_bytes = mem_info.rss if mem_info else 0
                     mem_mb = mem_bytes / (1024 * 1024)
 
                     if mem_mb > 150:
-                        spirits.append({
-                            "pid": pid,
-                            "name": name,
-                            "type": "Shadow Daemon",
-                            "age_min": round((now - (info.get('create_time') or now)) / 60.0, 1),
-                            "mem_mb": round(mem_mb, 1),
-                            "epitaph": random.choice(EPITAPHS),
-                            "danger": "MEDIUM"
-                        })
+                        spirits.append(
+                            {
+                                "pid": pid,
+                                "name": name,
+                                "type": "Shadow Daemon",
+                                "age_min": round(
+                                    (now - (info.get("create_time") or now)) / 60.0, 1
+                                ),
+                                "mem_mb": round(mem_mb, 1),
+                                "epitaph": random.choice(EPITAPHS),
+                                "danger": "MEDIUM",
+                            }
+                        )
                     if len(spirits) >= limit:
                         break
                 except Exception:
@@ -132,21 +150,20 @@ class Exorcist:
                 [
                     "No zombies or restless wraiths haunt your kernel process table.",
                     "The system sleeps in blessed, undisturbed peace.",
-                    "All child processes have been dutifully reaped."
+                    "All child processes have been dutifully reaped.",
                 ],
-                color=SLIME_GREEN
+                color=SLIME_GREEN,
             )
             return
 
-        lines = [
-            f"Detected {len(spirits)} restless entity/entities lurking in memory:",
-            ""
-        ]
+        lines = [f"Detected {len(spirits)} restless entity/entities lurking in memory:", ""]
         for s in spirits:
             type_color = BLOOD_RED if "Zombie" in s["type"] else GHOST_PURPLE
-            lines.append(f"• PID {BOLD}{s['pid']}{RESET} [{type_color}{s['type']}{RESET}] - {s['name']}")
+            lines.append(
+                f"• PID {BOLD}{s['pid']}{RESET} [{type_color}{s['type']}{RESET}] - {s['name']}"
+            )
             lines.append(f"  {DIM}Memory: {s['mem_mb']} MB | Age: {s['age_min']} mins{RESET}")
-            lines.append(f"  {DEATH_GRAY}\"{s['epitaph']}\"{RESET}")
+            lines.append(f'  {DEATH_GRAY}"{s["epitaph"]}"{RESET}')
             lines.append("")
 
         spectral_box("SPECTRAL PROCESS NECROPSY", lines, color=BLOOD_RED)

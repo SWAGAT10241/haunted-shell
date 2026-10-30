@@ -35,11 +35,7 @@ from .ui import (
 
 __version__ = "1.0.0"
 
-COLOR_MAP = {
-    "poltergeist": GHOST_PURPLE,
-    "calavera": MARIGOLD_AMBER,
-    "unix-elder": SLIME_GREEN
-}
+COLOR_MAP = {"poltergeist": GHOST_PURPLE, "calavera": MARIGOLD_AMBER, "unix-elder": SLIME_GREEN}
 
 
 def _setup_readline(history_path: str) -> None:
@@ -65,21 +61,36 @@ def _save_readline(history_path: str) -> None:
 
 @click.group(invoke_without_command=True)
 @click.version_option(__version__, "-v", "--version", message="haunted-shell %(version)s")
-@click.option("--persona", "-p", default=None,
-              type=click.Choice(["poltergeist", "calavera", "unix-elder"], case_sensitive=False),
-              help="Spectral persona possessing the shell.")
-@click.option("--offline", "-o", is_flag=True, default=None,
-              help="Force 100% offline mode (bypasses any local/external LLM probes).")
-@click.option("--model", "-m", default=None,
-              help="Local open-weight model name (e.g. gemma2:2b, llama3.2).")
-@click.option("--glitch", "-g", default=None, type=int,
-              help="Glitch/zalgo text intensity level (0 to 3).")
-@click.option("--no-color", is_flag=True, default=False,
-              help="Disable ANSI colors and styling.")
-@click.option("--debug", is_flag=True, default=False,
-              help="Enable debug logging output to stderr.")
-@click.option("--config", "-c", "config_file", default=None, type=click.Path(dir_okay=False),
-              help="Path to custom configuration JSON file.")
+@click.option(
+    "--persona",
+    "-p",
+    default=None,
+    type=click.Choice(["poltergeist", "calavera", "unix-elder"], case_sensitive=False),
+    help="Spectral persona possessing the shell.",
+)
+@click.option(
+    "--offline",
+    "-o",
+    is_flag=True,
+    default=None,
+    help="Force 100% offline mode (bypasses any local/external LLM probes).",
+)
+@click.option(
+    "--model", "-m", default=None, help="Local open-weight model name (e.g. gemma2:2b, llama3.2)."
+)
+@click.option(
+    "--glitch", "-g", default=None, type=int, help="Glitch/zalgo text intensity level (0 to 3)."
+)
+@click.option("--no-color", is_flag=True, default=False, help="Disable ANSI colors and styling.")
+@click.option("--debug", is_flag=True, default=False, help="Enable debug logging output to stderr.")
+@click.option(
+    "--config",
+    "-c",
+    "config_file",
+    default=None,
+    type=click.Path(dir_okay=False),
+    help="Path to custom configuration JSON file.",
+)
 @click.pass_context
 def cli(ctx, persona, offline, model, glitch, no_color, debug, config_file):
     """👻 haunted-shell: A terminal possessed by open-source AI."""
@@ -132,7 +143,9 @@ def shell(ctx):
         else f"Local Open-Weight Model [{config.model}]"
     )
     print(f"{DIM}👻 Spirit: {BOLD}{engine.persona.title}{RESET}")
-    print(f"{DIM}🔒 Air-gap Security: {SLIME_GREEN}Verified Local-Only{RESET}{DIM} ({status_mode}){RESET}")
+    print(
+        f"{DIM}🔒 Air-gap Security: {SLIME_GREEN}Verified Local-Only{RESET}{DIM} ({status_mode}){RESET}"
+    )
     print(f"{DIM}💡 Type regular commands or ':help' for builtins. Type 'exit' to escape.{RESET}\n")
 
     prev_dir = os.getcwd()
@@ -173,7 +186,7 @@ def shell(ctx):
                     "  :exorcise           Scan running processes for zombies and wraiths",
                     "  :persona <name>     Switch active spirit (poltergeist, calavera, unix-elder)",
                     "  :clear              Clear terminal display",
-                    "  :exit / quit        Depart the possessed session"
+                    "  :exit / quit        Depart the possessed session",
                 ]
                 spectral_box("HAUNTED REPL GUIDANCE", lines, color=color)
                 continue
@@ -190,7 +203,10 @@ def shell(ctx):
                     engine = GhostEngine(config=config)
                     ctx.obj["engine"] = engine
                     color = COLOR_MAP.get(new_name, GHOST_PURPLE)
-                    typewriter(f"The veil shifts... {engine.persona.title} now inhabits the shell.\n", color=color)
+                    typewriter(
+                        f"The veil shifts... {engine.persona.title} now inhabits the shell.\n",
+                        color=color,
+                    )
                 else:
                     valid = ", ".join(available_persona_names())
                     print(f"Usage: :persona <{valid}>")
@@ -273,7 +289,9 @@ def exorcise(ctx, banish, force):
     spirits = exorcist.scan_spirits()
     exorcist.render_spectral_report(spirits)
     if spirits:
-        click.echo(f"\n{DIM}To banish a restless PID, run: {BOLD}haunt exorcise --banish <PID>{RESET}")
+        click.echo(
+            f"\n{DIM}To banish a restless PID, run: {BOLD}haunt exorcise --banish <PID>{RESET}"
+        )
 
 
 @cli.command()
@@ -284,11 +302,15 @@ def seance(ctx):
     color = COLOR_MAP.get(engine.persona.name, GHOST_PURPLE)
 
     print(get_banner(engine.persona.name))
-    spectral_box("SÉANCE CHAMBER", [
-        f"You are conversing directly with {engine.persona.title}.",
-        "The candles are lit. No shell commands are executed here.",
-        "Speak your queries to the spirit. Type 'farewell' to leave."
-    ], color=color)
+    spectral_box(
+        "SÉANCE CHAMBER",
+        [
+            f"You are conversing directly with {engine.persona.title}.",
+            "The candles are lit. No shell commands are executed here.",
+            "Speak your queries to the spirit. Type 'farewell' to leave.",
+        ],
+        color=color,
+    )
 
     while True:
         try:
@@ -309,7 +331,9 @@ def seance(ctx):
 
 
 @cli.command()
-@click.argument("shell_type", default="zsh", type=click.Choice(["zsh", "bash", "fish"], case_sensitive=False))
+@click.argument(
+    "shell_type", default="zsh", type=click.Choice(["zsh", "bash", "fish"], case_sensitive=False)
+)
 def hook(shell_type):
     """Output shell hook script for ~/.zshrc, ~/.bashrc, or config.fish."""
     click.echo(generate_hook(shell_type))
@@ -328,7 +352,7 @@ def airgap(ctx):
         f"Configured Model: {audit['model_configured']}",
         f"External Telemetry: {'DISABLED (100% Local)' if audit['external_telemetry_disabled'] else 'Active'}",
         f"Can Run Offline: {'YES (Zero Cloud Dependencies)' if audit['can_run_fully_offline'] else 'No'}",
-        f"Air-Gap Verification: {'Safe for Air-Gapped Laptops' if audit['airgap_safe'] else 'Warning'}"
+        f"Air-Gap Verification: {'Safe for Air-Gapped Laptops' if audit['airgap_safe'] else 'Warning'}",
     ]
     spectral_box("AIR-GAP & PRIVACY AUDIT", lines, color=SLIME_GREEN)
 
@@ -370,7 +394,7 @@ def persona_show(name):
         f"Color:  {p.color_name}",
         "",
         "System Lore Prompt:",
-        f"{DIM}{p.system_prompt}{RESET}"
+        f"{DIM}{p.system_prompt}{RESET}",
     ]
     spectral_box(f"PERSONA: {p.name.upper()}", lines, color=color)
 

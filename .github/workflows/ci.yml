@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.10", "3.11", "3.12"]
 
     steps:
       - name: Checkout repository
@@ -31,26 +31,35 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest pytest-cov flake8 black
+          pip install -r requirements-dev.txt
           pip install -e .
 
-      - name: Code style & formatting check
+      - name: Lint and format check (ruff)
         run: |
-          # Stop the build if there are Python syntax errors or undefined names
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=.venv
-          # Formatting check with Black (non-blocking diff preview)
-          black --check --diff haunted_shell tests || true
+          ruff check haunted_shell tests
+          ruff format --check haunted_shell tests
 
-      - name: Run unit tests with Pytest
+      - name: Type checking (mypy)
+        run: |
+          mypy haunted_shell
+
+      - name: Run unit tests with Pytest & Coverage
         run: |
           pytest --cov=haunted_shell --cov-report=term-missing tests/
 
       - name: CLI smoke tests
         run: |
+          haunt --version
           haunt --help
+          haunt doctor
           haunt airgap
+          haunt persona list
+          haunt persona show calavera
+          haunt config show
+          haunt exorcise
           haunt whisper "rm -rf fake_file.txt"
           haunt --persona calavera whisper "git commit -m 'Initial commit'"
           haunt --persona unix-elder whisper "git push origin main"
           haunt hook zsh
           haunt hook bash
+          haunt hook fish

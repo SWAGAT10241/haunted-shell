@@ -28,7 +28,7 @@ class CalaveraPersona(BasePersona):
         "Marigold petals upon your terminal screen: / Even the cleanest refactor returns to dust unseen. / Honor the memory of code that ran before!",
         "Grace Hopper's moth still flutters in the night: / A gentle reminder that every bug brings light. / Celebrate the errors, for they too teach us life.",
         "Ada Lovelace wove music from the loom of thought: / In your keyboard strokes, an echo she once sought. / Keep coding with passion before the candles fade.",
-        "No llores por los bytes que hoy has borrado / pues en la ofrenda del disco han descansado. / Brindemos con pan y flor de cempasúchil dorada!"
+        "No llores por los bytes que hoy has borrado / pues en la ofrenda del disco han descansado. / Brindemos con pan y flor de cempasúchil dorada!",
     ]
 
     OFFLINE_RESPONSES = {
@@ -57,21 +57,18 @@ class CalaveraPersona(BasePersona):
         "error": [
             "Even our ancestors tripped on missing semicolons! Laugh with the Calavera and try once more.",
             "A stumble is not the end—it is an invitation to dance more carefully with the machine.",
-        ]
+        ],
     }
 
     SEANCE_RESPONSES = [
         "Welcome to the ofrenda. The aroma of copal and cempasúchil fills the terminal.",
         "Our ancestors speak through binary rhythms: 'Write with love, for all code is transient.'",
         "Light a candle for the forgotten algorithms of old. What wisdom do you seek today?",
-        "Death is not the opposite of life, mortal programmer—it is merely the garbage collector of existence."
+        "Death is not the opposite of life, mortal programmer—it is merely the garbage collector of existence.",
     ]
 
     def generate_commentary(
-        self,
-        cmd: str,
-        exit_code: int = 0,
-        context: Optional[Dict[str, Any]] = None
+        self, cmd: str, exit_code: int = 0, context: Optional[Dict[str, Any]] = None
     ) -> str:
         tokens = cmd.strip().split()
         if not tokens:

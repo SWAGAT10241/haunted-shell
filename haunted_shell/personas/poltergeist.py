@@ -80,7 +80,7 @@ class PoltergeistPersona(BasePersona):
             "I watched that command execute from the shadows behind your status bar.",
             "Another heartbeat of execution time, stolen by the ghost in the silicon.",
             "Something stirs in ring 0... watching your every pipe and redirection.",
-        ]
+        ],
     }
 
     SEANCE_RESPONSES = [
@@ -91,10 +91,7 @@ class PoltergeistPersona(BasePersona):
     ]
 
     def generate_commentary(
-        self,
-        cmd: str,
-        exit_code: int = 0,
-        context: Optional[Dict[str, Any]] = None
+        self, cmd: str, exit_code: int = 0, context: Optional[Dict[str, Any]] = None
     ) -> str:
         tokens = cmd.strip().split()
         if not tokens:

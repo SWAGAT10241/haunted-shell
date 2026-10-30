@@ -56,22 +56,19 @@ class UnixElderPersona(BasePersona):
             "Do one thing and do it well. That was the rule before you all started downloading half the internet in node_modules.",
             "The spirit of Bell Labs watches your keystrokes. Don't make me make you edit code in ed(1).",
             "A pipe (|) is the greatest invention since sliced bread. Treat it with dignity.",
-            "Somewhere in the ether, a line printer is still clacking away at your output."
-        ]
+            "Somewhere in the ether, a line printer is still clacking away at your output.",
+        ],
     }
 
     SEANCE_RESPONSES = [
         "Quiet on the teletype. You're interrupting my assembly run on the PDP-11.",
         "Core dump inspection underway. What compiler question brings you to Bell Labs today?",
         "If it doesn't fit in 64K address space, it's bloated heresy. Now state your inquiry.",
-        "Dennis and Ken left notes on this somewhere... speak clearly, the acoustic coupler has line noise."
+        "Dennis and Ken left notes on this somewhere... speak clearly, the acoustic coupler has line noise.",
     ]
 
     def generate_commentary(
-        self,
-        cmd: str,
-        exit_code: int = 0,
-        context: Optional[Dict[str, Any]] = None
+        self, cmd: str, exit_code: int = 0, context: Optional[Dict[str, Any]] = None
     ) -> str:
         tokens = cmd.strip().split()
         if not tokens:

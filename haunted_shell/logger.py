@@ -25,8 +25,7 @@ def setup_logger(debug: bool = False, log_file: Optional[str] = None) -> logging
         logger.removeHandler(handler)
 
     formatter = logging.Formatter(
-        "[%(asctime)s] [%(levelname)s] [haunted_shell] %(message)s",
-        datefmt="%H:%M:%S"
+        "[%(asctime)s] [%(levelname)s] [haunted_shell] %(message)s", datefmt="%H:%M:%S"
     )
 
     # Console handler (stderr only, so stdout remains clean for CLI pipes)

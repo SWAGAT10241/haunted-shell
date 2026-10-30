@@ -108,22 +108,62 @@ def set_color_enabled(enabled: bool) -> None:
 
 # Glitch / Zalgo combining characters
 ZALGO_UP = [
-    '\u030d', '\u030e', '\u0304', '\u0305', '\u033f', '\u0311', '\u0306', '\u0310',
-    '\u0352', '\u0357', '\u0351', '\u0307', '\u0308', '\u030a', '\u0342', '\u0343'
+    "\u030d",
+    "\u030e",
+    "\u0304",
+    "\u0305",
+    "\u033f",
+    "\u0311",
+    "\u0306",
+    "\u0310",
+    "\u0352",
+    "\u0357",
+    "\u0351",
+    "\u0307",
+    "\u0308",
+    "\u030a",
+    "\u0342",
+    "\u0343",
 ]
 ZALGO_MID = [
-    '\u0315', '\u031b', '\u0340', '\u0341', '\u0358', '\u0321', '\u0322', '\u0327',
-    '\u0328', '\u0334', '\u0335', '\u0336', '\u0337', '\u0338'
+    "\u0315",
+    "\u031b",
+    "\u0340",
+    "\u0341",
+    "\u0358",
+    "\u0321",
+    "\u0322",
+    "\u0327",
+    "\u0328",
+    "\u0334",
+    "\u0335",
+    "\u0336",
+    "\u0337",
+    "\u0338",
 ]
 ZALGO_DOWN = [
-    '\u0316', '\u0317', '\u0318', '\u0319', '\u031c', '\u031d', '\u031e', '\u031f',
-    '\u0320', '\u0324', '\u0325', '\u0326', '\u0329', '\u032a', '\u032b', '\u032c'
+    "\u0316",
+    "\u0317",
+    "\u0318",
+    "\u0319",
+    "\u031c",
+    "\u031d",
+    "\u031e",
+    "\u031f",
+    "\u0320",
+    "\u0324",
+    "\u0325",
+    "\u0326",
+    "\u0329",
+    "\u032a",
+    "\u032b",
+    "\u032c",
 ]
 
 
 def strip_ansi(text: str) -> str:
     """Remove ANSI escape sequences for accurate visual length measurement."""
-    return re.sub(r'\x1B\[[0-?]*[ -/]*[@-~]', '', text)
+    return re.sub(r"\x1B\[[0-?]*[ -/]*[@-~]", "", text)
 
 
 def zalgo(text: str, intensity: int = 1, seed: Optional[int] = None) -> str:
@@ -144,11 +184,7 @@ def zalgo(text: str, intensity: int = 1, seed: Optional[int] = None) -> str:
 
 
 def typewriter(
-    text: str,
-    delay: float = 0.015,
-    color: str = "",
-    end: str = "\n",
-    stream=None
+    text: str, delay: float = 0.015, color: str = "", end: str = "\n", stream=None
 ) -> None:
     """Typewriter print with eerie rhythmic pauses and interrupt resilience."""
     out = stream if stream is not None else sys.stdout
@@ -158,9 +194,9 @@ def typewriter(
         for char in text:
             out.write(char)
             out.flush()
-            if char in {'.', '!', '?'}:
+            if char in {".", "!", "?"}:
                 time.sleep(delay * 4)
-            elif char in {',', ':', ';'}:
+            elif char in {",", ":", ";"}:
                 time.sleep(delay * 2)
             else:
                 time.sleep(delay * random.uniform(0.7, 1.3))
@@ -172,11 +208,7 @@ def typewriter(
 
 
 def spectral_box(
-    title: str,
-    lines: List[str],
-    color: str = "",
-    border_color: str = "",
-    stream=None
+    title: str, lines: List[str], color: str = "", border_color: str = "", stream=None
 ) -> None:
     """Draw an eerie formatted box with dynamic terminal width constraints."""
     out = stream if stream is not None else sys.stdout
@@ -195,7 +227,11 @@ def spectral_box(
 
     max_len = max(min(content_max, max_box_width - 4), 48)
 
-    top = f"{border}┌─[ {box_color}{BOLD}{title}{RESET}{border} ]" + "─" * max(0, max_len - clean_title_len - 5) + f"┐{RESET}"
+    top = (
+        f"{border}┌─[ {box_color}{BOLD}{title}{RESET}{border} ]"
+        + "─" * max(0, max_len - clean_title_len - 5)
+        + f"┐{RESET}"
+    )
     bottom = f"{border}└" + "─" * max_len + f"┘{RESET}"
 
     out.write(top + "\n")
@@ -230,6 +266,6 @@ def get_banner(persona: str = "poltergeist") -> str:
      | [PDP-11 DAEMON - 1971] PID 0xDEADBEEF AWAKENED        |
      | "In the old days, we had 4KB and we liked it."          |
      '--------------------------------------------------------'
-{RESET}"""
+{RESET}""",
     }
     return banners.get(persona.lower(), banners["poltergeist"])
