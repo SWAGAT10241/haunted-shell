@@ -29,6 +29,17 @@ Built with **open-source AI at its core**, `haunted-shell` connects directly to 
 
 ---
 
+## 📖 Official Documentation & Wiki
+Explore the full [haunted-shell Technical Wiki](docs/wiki/Home.md):
+- [Architecture & Design](docs/wiki/Architecture-&-Design.md)
+- [Personas & Lore](docs/wiki/Personas-&-Lore.md)
+- [Custom Modifiers Guide](docs/wiki/Custom-Modifiers-Guide.md)
+- [Exorcism & Process Monitoring](docs/wiki/Exorcism-&-Process-Monitoring.md)
+- [Shell Integration & Hooks](docs/wiki/Shell-Integration-&-Hooks.md)
+- [Local Open-Weight Models Setup](docs/wiki/Local-Open-Weight-Models-Setup.md)
+
+---
+
 ## 💡 Why Open Innovation Matters for `haunted-shell`
 
 The challenge asks: *Why does open innovation matter for what you built?*
