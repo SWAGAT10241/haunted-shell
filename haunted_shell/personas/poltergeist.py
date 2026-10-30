@@ -3,13 +3,16 @@ Poltergeist persona: A mischievous, chilling Halloween spirit that possesses the
 """
 
 import random
-from typing import Dict, Any
+from typing import Any, Dict, Optional
+
+from .base import BasePersona
 
 
-class PoltergeistPersona:
+class PoltergeistPersona(BasePersona):
     name = "poltergeist"
     title = "The Poltergeist of Purgatory"
     color_name = "purple"
+    prompt_symbol = "👻"
 
     system_prompt = (
         "You are an ancient, mischievous poltergeist living inside a user's terminal session on Halloween. "
@@ -80,7 +83,19 @@ class PoltergeistPersona:
         ]
     }
 
-    def generate_commentary(self, cmd: str, exit_code: int, context: Dict[str, Any]) -> str:
+    SEANCE_RESPONSES = [
+        "The veil flutters... your voice creates ripples in the digital ether.",
+        "I hear you from beyond the partition table. Speak before the candle burns low.",
+        "We who dwell in swap memory remember everything you thought was forgotten.",
+        "The electrons oscillate with your words. But can you fathom what lies beneath the BIOS?",
+    ]
+
+    def generate_commentary(
+        self,
+        cmd: str,
+        exit_code: int = 0,
+        context: Optional[Dict[str, Any]] = None
+    ) -> str:
         tokens = cmd.strip().split()
         if not tokens:
             return "Silence... the cursor blinks like an unblinking eye."
@@ -100,3 +115,9 @@ class PoltergeistPersona:
                 return template.format(target=target)
 
         return random.choice(self.OFFLINE_RESPONSES["generic"])
+
+    def converse(self, utterance: str) -> str:
+        return random.choice(self.SEANCE_RESPONSES)
+
+    def get_farewell(self) -> str:
+        return "...The spirit dissipates back into swap memory. Rest well, mortal..."

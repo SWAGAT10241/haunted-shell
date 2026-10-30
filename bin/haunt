@@ -1,4 +1,14 @@
 #!/usr/bin/env bash
+# Entry script for haunted-shell
+set -e
+
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-export PYTHONPATH="$REPO_DIR:$PYTHONPATH"
-python3 -m haunted_shell.cli "$@" 2> >(grep -v -E "hashlib\.py|blake2|unsupported hash type|Traceback \(most recent call last\):|\^\^\^|globals\(\)\[__func_name\]|return __get_builtin_constructor|ERROR:root:code for hash" >&2)
+
+if [ -f "$REPO_DIR/.venv/bin/python" ]; then
+    PYTHON_EXEC="$REPO_DIR/.venv/bin/python"
+else
+    PYTHON_EXEC="$(command -v python3 || command -v python)"
+fi
+
+export PYTHONPATH="$REPO_DIR:${PYTHONPATH:-}"
+exec "$PYTHON_EXEC" -m haunted_shell.cli "$@"

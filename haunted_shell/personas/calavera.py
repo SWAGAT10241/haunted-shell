@@ -4,13 +4,16 @@ calaveritas literarias (traditional satirical poems), marigolds, and honoring co
 """
 
 import random
-from typing import Dict, Any
+from typing import Any, Dict, Optional
+
+from .base import BasePersona
 
 
-class CalaveraPersona:
+class CalaveraPersona(BasePersona):
     name = "calavera"
     title = "La Calavera de los Antepasados (Día de los Muertos Spirit)"
     color_name = "amber"
+    prompt_symbol = "💀"
 
     system_prompt = (
         "You are La Calavera Catrina, an eloquent and warm spirit of Día de los Muertos inhabiting a coder's shell. "
@@ -57,7 +60,19 @@ class CalaveraPersona:
         ]
     }
 
-    def generate_commentary(self, cmd: str, exit_code: int, context: Dict[str, Any]) -> str:
+    SEANCE_RESPONSES = [
+        "Welcome to the ofrenda. The aroma of copal and cempasúchil fills the terminal.",
+        "Our ancestors speak through binary rhythms: 'Write with love, for all code is transient.'",
+        "Light a candle for the forgotten algorithms of old. What wisdom do you seek today?",
+        "Death is not the opposite of life, mortal programmer—it is merely the garbage collector of existence."
+    ]
+
+    def generate_commentary(
+        self,
+        cmd: str,
+        exit_code: int = 0,
+        context: Optional[Dict[str, Any]] = None
+    ) -> str:
         tokens = cmd.strip().split()
         if not tokens:
             return "A candle flickers softly on the altar of your terminal..."
@@ -66,7 +81,7 @@ class CalaveraPersona:
         if base in {"sudo", "doas"} and len(tokens) > 1:
             base = tokens[1].lower()
 
-        # 30% chance to drop a full calaverita poem!
+        # 35% chance to drop a traditional calaverita poem
         if random.random() < 0.35:
             return random.choice(self.CALAVERITAS)
 
@@ -78,3 +93,9 @@ class CalaveraPersona:
                 return random.choice(self.OFFLINE_RESPONSES[key])
 
         return random.choice(self.CALAVERITAS)
+
+    def converse(self, utterance: str) -> str:
+        return random.choice(self.SEANCE_RESPONSES)
+
+    def get_farewell(self) -> str:
+        return "¡Que las flores de cempasúchil guíen tus pasos en la oscuridad! Hasta luego..."

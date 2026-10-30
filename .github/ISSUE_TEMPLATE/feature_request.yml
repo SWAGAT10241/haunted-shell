@@ -1,0 +1,27 @@
+name: 💡 Feature or Persona Request
+description: Propose a new spectral persona, shell hook, or feature
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: Have an idea for a spooky persona or terminal enhancement? Let us know!
+  - type: input
+    id: feature_name
+    attributes:
+      label: Feature / Persona Name
+      placeholder: e.g. Cursed Compiler Persona / Fish shell integration
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Concept & Details
+      placeholder: Describe the behavior, lore, or technical details of your proposed feature.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      placeholder: Any alternative solutions or features you've considered.

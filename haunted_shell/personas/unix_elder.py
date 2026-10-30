@@ -4,13 +4,16 @@ Grumpy, nostalgic for magnetic tape and 4KB core memory, roasted by modern bloat
 """
 
 import random
-from typing import Dict, Any
+from typing import Any, Dict, Optional
+
+from .base import BasePersona
 
 
-class UnixElderPersona:
+class UnixElderPersona(BasePersona):
     name = "unix-elder"
     title = "The 1971 PDP-11 Mainframe Specter"
     color_name = "green"
+    prompt_symbol = "#"
 
     system_prompt = (
         "You are the ghost of a 1971 PDP-11 Bell Labs Unix hacker inhabiting a modern terminal. "
@@ -57,7 +60,19 @@ class UnixElderPersona:
         ]
     }
 
-    def generate_commentary(self, cmd: str, exit_code: int, context: Dict[str, Any]) -> str:
+    SEANCE_RESPONSES = [
+        "Quiet on the teletype. You're interrupting my assembly run on the PDP-11.",
+        "Core dump inspection underway. What compiler question brings you to Bell Labs today?",
+        "If it doesn't fit in 64K address space, it's bloated heresy. Now state your inquiry.",
+        "Dennis and Ken left notes on this somewhere... speak clearly, the acoustic coupler has line noise."
+    ]
+
+    def generate_commentary(
+        self,
+        cmd: str,
+        exit_code: int = 0,
+        context: Optional[Dict[str, Any]] = None
+    ) -> str:
         tokens = cmd.strip().split()
         if not tokens:
             return "The teletype ribbon pauses. Speak, terminal operator."
@@ -74,3 +89,9 @@ class UnixElderPersona:
                 return random.choice(self.OFFLINE_RESPONSES[key])
 
         return random.choice(self.OFFLINE_RESPONSES["generic"])
+
+    def converse(self, utterance: str) -> str:
+        return random.choice(self.SEANCE_RESPONSES)
+
+    def get_farewell(self) -> str:
+        return "Line dropped. SIGHUP sent to modem. Teletype carrier lost."

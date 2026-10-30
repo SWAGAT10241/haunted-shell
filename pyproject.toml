@@ -1,23 +1,98 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "haunted-shell"
 version = "1.0.0"
-description = "A possessed shell companion powered by local open-weight AI - Hacktoberfest Week 4"
+description = "A possessed terminal companion powered by local open-weight AI - Hacktoberfest Week 4"
 readme = "README.md"
-authors = [{ name = "Hacktoberfest Ghost Builder" }]
+authors = [
+    { name = "SWAGAT SOURAV DHAR", email = "swagatsouravdhar@users.noreply.github.com" }
+]
 license = { text = "MIT" }
 requires-python = ">=3.9"
+keywords = [
+    "terminal",
+    "cli",
+    "open-source-ai",
+    "gemma",
+    "hacktoberfest",
+    "shell",
+    "local-ai",
+    "privacy"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: System :: Shells",
+    "Topic :: Terminals",
+    "Topic :: Utilities"
+]
 dependencies = [
     "click>=8.0.0",
     "psutil>=5.9.0",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.1.0",
+    "mypy>=1.5.0",
+    "pip-audit>=2.6.0"
+]
+
 [project.scripts]
 haunt = "haunted_shell.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/SWAGAT10241/haunted-shell"
+Repository = "https://github.com/SWAGAT10241/haunted-shell"
+"Bug Tracker" = "https://github.com/SWAGAT10241/haunted-shell/issues"
+"DEV Submission" = "https://dev.to/swagat10241/haunted-shell-possessing-your-terminal-with-local-open-weight-ai-ghost-in-the-machine-2alh-temp-slug-1269997"
 
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["haunted_shell*"]
+
+[tool.setuptools.package-data]
+haunted_shell = ["py.typed"]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q --strict-markers"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E501"]  # Line length handled gracefully
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+check_untyped_defs = true
+
+[tool.coverage.run]
+source = ["haunted_shell"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 70

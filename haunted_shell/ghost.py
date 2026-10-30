@@ -3,93 +3,149 @@ GhostEngine: The central possession brain combining local open-weight models (Ge
 with a zero-dependency offline spectral neural fallback engine.
 """
 
-import os
-import time
-import socket
 import json
-from typing import Dict, Any, Optional
+import os
+import re
+import socket
+import time
+import urllib.error
+import urllib.request
+from typing import Any, Dict, Optional
 
-try:
-    import urllib.request
-    import urllib.error
-except ImportError:
-    pass
-
-from .personas import get_persona
+from .config import HauntedConfig
+from .logger import logger
+from .personas import BasePersona, get_persona
 from .ui import zalgo
 
 
 class GhostEngine:
+    """Manages spectral inference, local model fallback, and zalgo post-processing."""
+
     def __init__(
         self,
-        persona_name: str = "poltergeist",
+        config: Optional[HauntedConfig] = None,
+        persona_name: Optional[str] = None,
         model_name: Optional[str] = None,
-        ollama_url: str = "http://localhost:11434",
-        force_offline: bool = False,
-        glitch_intensity: int = 1,
+        ollama_url: Optional[str] = None,
+        force_offline: Optional[bool] = None,
+        glitch_intensity: Optional[int] = None,
+        timeout: Optional[float] = None,
     ):
-        self.persona = get_persona(persona_name)
-        self.model_name = model_name or os.environ.get("HAUNTED_MODEL", "gemma2:2b")
-        self.ollama_url = ollama_url
-        self.force_offline = force_offline
-        self.glitch_intensity = glitch_intensity
-        self.has_local_model = False if force_offline else self._probe_local_model()
+        cfg = config or HauntedConfig()
+        self.persona: BasePersona = get_persona(persona_name or cfg.persona)
+        self.model_name: str = model_name or cfg.model
+        self.ollama_url: str = (ollama_url or cfg.ollama_url).rstrip("/")
+        self.force_offline: bool = force_offline if force_offline is not None else cfg.offline
+        self.glitch_intensity: int = glitch_intensity if glitch_intensity is not None else cfg.glitch_intensity
+        self.timeout: float = timeout if timeout is not None else cfg.ollama_timeout
+
+        self._has_local_model_cache: Optional[bool] = None
+        self._last_probe_time: float = 0.0
+        self._probe_ttl: float = 30.0  # seconds to cache probe result
+
+    @property
+    def has_local_model(self) -> bool:
+        """Cached check for local open-weight model availability."""
+        if self.force_offline:
+            return False
+
+        now = time.time()
+        if (
+            self._has_local_model_cache is not None
+            and (now - self._last_probe_time) < self._probe_ttl
+        ):
+            return self._has_local_model_cache
+
+        self._has_local_model_cache = self._probe_local_model()
+        self._last_probe_time = now
+        return self._has_local_model_cache
 
     def _probe_local_model(self) -> bool:
-        """Check if a local open-weight model server (like Ollama or llama.cpp) is running on localhost."""
+        """Probe localhost Ollama/llama.cpp server to check if models are available."""
+        endpoint = f"{self.ollama_url}/api/tags"
         try:
-            req = urllib.request.Request(f"{self.ollama_url}/api/tags", method="GET")
-            with urllib.request.urlopen(req, timeout=0.4) as response:
-                if response.status == 200:
-                    data = json.loads(response.read().decode("utf-8"))
+            req = urllib.request.Request(
+                endpoint,
+                headers={"User-Agent": "haunted-shell/1.0.0"},
+                method="GET"
+            )
+            with urllib.request.urlopen(req, timeout=0.5) as resp:
+                if resp.status == 200:
+                    data = json.loads(resp.read().decode("utf-8"))
                     models = [m.get("name", "") for m in data.get("models", [])]
-                    # Check if our target model or any model is available
+                    logger.debug("Found %d local models at %s", len(models), self.ollama_url)
                     return len(models) > 0
-        except Exception:
+        except Exception as exc:
+            logger.debug("Local LLM probe failed at %s: %s", endpoint, exc)
             return False
         return False
 
     def query_local_llm(self, prompt: str) -> Optional[str]:
-        """Query local open-weight model via Ollama endpoint."""
+        """Query local open-weight model via Ollama endpoint with strict timeout."""
         if self.force_offline:
             return None
-        try:
-            payload = {
-                "model": self.model_name,
-                "prompt": f"System: {self.persona.system_prompt}\nUser: {prompt}\nSpirit:",
-                "stream": False,
-                "options": {
-                    "temperature": 0.85,
-                    "num_predict": 75,
-                }
+
+        endpoint = f"{self.ollama_url}/api/generate"
+        payload = {
+            "model": self.model_name,
+            "prompt": f"System: {self.persona.system_prompt}\nUser: {prompt}\nSpirit:",
+            "stream": False,
+            "options": {
+                "temperature": 0.85,
+                "num_predict": 75,
             }
+        }
+
+        try:
             req = urllib.request.Request(
-                f"{self.ollama_url}/api/generate",
+                endpoint,
                 data=json.dumps(payload).encode("utf-8"),
-                headers={"Content-Type": "application/json"},
+                headers={
+                    "Content-Type": "application/json",
+                    "User-Agent": "haunted-shell/1.0.0"
+                },
                 method="POST"
             )
-            with urllib.request.urlopen(req, timeout=1.8) as resp:
+            with urllib.request.urlopen(req, timeout=self.timeout) as resp:
                 if resp.status == 200:
-                    result = json.loads(resp.read().decode("utf-8"))
+                    raw_data = resp.read().decode("utf-8")
+                    result = json.loads(raw_data)
                     reply = result.get("response", "").strip()
                     if reply:
-                        return reply
-        except Exception:
-            pass
+                        return self._sanitize_llm_response(reply)
+        except Exception as exc:
+            logger.debug("Ollama inference error: %s", exc)
+            return None
         return None
 
-    def haunt_command(self, cmd: str, exit_code: int = 0, context: Optional[Dict[str, Any]] = None) -> str:
+    @staticmethod
+    def _sanitize_llm_response(text: str) -> str:
+        """Strip enclosing quotes, markdown wrappers, and prefix labels."""
+        cleaned = text.strip()
+        for _ in range(2):
+            if (cleaned.startswith('"') and cleaned.endswith('"')) or (cleaned.startswith("'") and cleaned.endswith("'")):
+                cleaned = cleaned[1:-1].strip()
+            cleaned = re.sub(r'^(Spirit|Ghost|Poltergeist|Calavera|UnixElder):\s*', '', cleaned, flags=re.IGNORECASE).strip()
+        cleaned = re.sub(r'\s+', ' ', cleaned)
+        return cleaned
+
+    def haunt_command(
+        self,
+        cmd: str,
+        exit_code: int = 0,
+        context: Optional[Dict[str, Any]] = None
+    ) -> str:
         """Generate a haunting spectral response to a user shell command."""
         ctx = context or {}
         cmd_clean = cmd.strip()
 
         # If local model is available and not forced offline, try LLM generation
         if self.has_local_model and not self.force_offline:
+            cwd_name = os.path.basename(os.getcwd()) or "/"
             prompt = (
                 f"The mortal just ran this shell command: '{cmd_clean}'. "
                 f"Exit code: {exit_code}. "
-                f"Directory: {os.path.basename(os.getcwd())}. "
+                f"Directory: {cwd_name}. "
                 f"Whisper your reaction directly to them."
             )
             llm_response = self.query_local_llm(prompt)
@@ -103,19 +159,13 @@ class GhostEngine:
     def converse(self, user_utterance: str) -> str:
         """Direct conversational response in seance mode."""
         if self.has_local_model and not self.force_offline:
-            llm_response = self.query_local_llm(f"Séance dialogue: The mortal asks: '{user_utterance}'")
+            prompt = f"Séance dialogue: The mortal asks: '{user_utterance.strip()}'"
+            llm_response = self.query_local_llm(prompt)
             if llm_response:
                 return self._decorate(llm_response)
 
         # Offline dialogue
-        generic = [
-            "The veil flutters... your voice creates ripples in the digital ether.",
-            "I hear you from beyond the partition table. Ask what you must before the candle burns low.",
-            "We who dwell in swap memory remember everything you thought was forgotten.",
-            "The electrons oscillate with your words. But can you fathom what lies beneath the BIOS?",
-        ]
-        import random
-        return self._decorate(random.choice(generic))
+        return self._decorate(self.persona.converse(user_utterance))
 
     def _decorate(self, text: str) -> str:
         """Apply glitch / zalgo transformation if enabled."""
@@ -125,13 +175,16 @@ class GhostEngine:
 
     def audit_airgap(self) -> Dict[str, Any]:
         """Perform an airgap verification: verify that no outbound packets leave the machine."""
+        external_connected = False
+        # Test connecting to an external DNS IP to check if machine is airgapped
         external_host = "8.8.8.8"
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.settimeout(0.2)
                 s.connect((external_host, 53))
+                external_connected = True
         except Exception:
-            pass
+            external_connected = False
 
         return {
             "persona": self.persona.name,
@@ -140,5 +193,6 @@ class GhostEngine:
             "airgap_safe": True,
             "external_telemetry_disabled": True,
             "can_run_fully_offline": True,
-            "hardware_local_inference": True
+            "hardware_local_inference": True,
+            "host_network_isolated": not external_connected
         }

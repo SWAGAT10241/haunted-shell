@@ -1,7 +1,33 @@
+# Python Bytecode & Cache
 __pycache__/
 *.py[cod]
 *$py.class
 *.egg-info/
 dist/
 build/
+*.egg
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+
+# Testing & Coverage
 .pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# IDE & Editor Configs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Temporary & Environment
+.env
+.env.local

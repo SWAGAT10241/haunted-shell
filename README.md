@@ -1,5 +1,12 @@
 # 👻 haunted-shell: Ghost in the Machine
 
+[![CI](https://github.com/SWAGAT10241/haunted-shell/actions/workflows/ci.yml/badge.svg)](https://github.com/SWAGAT10241/haunted-shell/actions/workflows/ci.yml)
+[![Security Audit](https://github.com/SWAGAT10241/haunted-shell/actions/workflows/security.yml/badge.svg)](https://github.com/SWAGAT10241/haunted-shell/actions/workflows/security.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![Air-Gap Verified](https://img.shields.io/badge/Air--Gap-100%25%20Local-brightgreen.svg)](SECURITY.md)
+[![Hacktoberfest 2026](https://img.shields.io/badge/Hacktoberfest-2026-orange.svg)](https://dev.to/challenges/hf26)
+
 ```
       .-.
      (o o) boo!
@@ -67,7 +74,7 @@ You can summon different spirits to possess your shell using `--persona`:
 ### 1. Installation
 Clone the repository and run:
 ```bash
-git clone https://github.com/swagatsouravdhar/haunted-shell.git
+git clone https://github.com/SWAGAT10241/haunted-shell.git
 cd haunted-shell
 pip install -r requirements.txt
 pip install -e .

@@ -1,18 +1,17 @@
 """
 Exorcist: Detects zombie processes, orphaned daemons, and memory-devouring wraiths on the host system.
+Features safety guardrails to prevent banishing critical kernel or shell PIDs.
 """
 
 import os
-import time
 import random
-from typing import List, Dict, Any, Optional
+import time
+from typing import Any, Dict, List, Optional, Set, Tuple
+
 import psutil
 
-from .ui import (
-    BOLD, RESET, DIM, BLOOD_RED, GHOST_PURPLE, SLIME_GREEN,
-    DEATH_GRAY, spectral_box
-)
-
+from .logger import logger
+from .ui import BLOOD_RED, BOLD, DEATH_GRAY, DIM, GHOST_PURPLE, RESET, SLIME_GREEN, spectral_box
 
 EPITAPHS = [
     "Spawned in haste, abandoned in cold memory. It wanders kernel space seeking its parent PID.",
@@ -22,11 +21,35 @@ EPITAPHS = [
     "A spectral daemon born at midnight, whispering into broken pipes that lead to nowhere.",
 ]
 
+PROTECTED_NAMES: Set[str] = {
+    "launchd", "systemd", "init", "kernel_task", "kthreadd", "haunted-shell", "haunt"
+}
+
 
 class Exorcist:
+    """Manages process zombie inspection, memory profiling, and safe process termination."""
+
+    def __init__(self):
+        self._current_pid = os.getpid()
+        self._parent_pid = os.getppid()
+
+    def is_protected(self, pid: int, name: Optional[str] = None) -> Tuple[bool, str]:
+        """Check if target PID is protected from banishment."""
+        if pid <= 1:
+            return True, f"PID {pid} is the root kernel/init process and cannot be banished."
+        if pid == self._current_pid:
+            return True, f"PID {pid} is the current haunted-shell process (suicide averted)."
+        if pid == self._parent_pid:
+            return True, f"PID {pid} is the host terminal shell process."
+
+        if name and name.lower() in PROTECTED_NAMES:
+            return True, f"Process '{name}' is a critical protected system supervisor."
+
+        return False, ""
+
     def scan_spirits(self, limit: int = 7) -> List[Dict[str, Any]]:
         """Inspect all running processes to find zombies, dead pipes, and heavy wraiths."""
-        spirits = []
+        spirits: List[Dict[str, Any]] = []
         now = time.time()
 
         for proc in psutil.process_iter(['pid', 'name', 'status', 'create_time', 'memory_info', 'ppid']):
@@ -34,12 +57,16 @@ class Exorcist:
                 info = proc.info
                 status = info.get('status')
                 pid = info.get('pid')
+                if pid is None or pid <= 1:
+                    continue
+
                 name = info.get('name') or "unknown_specter"
                 create_time = info.get('create_time') or now
-                age_minutes = (now - create_time) / 60.0
-                mem_bytes = info['memory_info'].rss if info.get('memory_info') else 0
+                age_minutes = max(0.0, (now - create_time) / 60.0)
+
+                mem_info = info.get('memory_info')
+                mem_bytes = mem_info.rss if mem_info else 0
                 mem_mb = mem_bytes / (1024 * 1024)
-                ppid = info.get('ppid')
 
                 is_zombie = (status == psutil.STATUS_ZOMBIE) or ("defunct" in name.lower())
                 is_wraith = (mem_mb > 600)  # Heavy memory devourer (> 600MB)
@@ -67,16 +94,20 @@ class Exorcist:
             except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
                 continue
 
-        # If no strict zombies found, add top long-running background tasks
+        # If few zombies/wraiths, supplement with top background daemons
         if len(spirits) < 3:
             for proc in psutil.process_iter(['pid', 'name', 'status', 'create_time', 'memory_info']):
                 try:
                     info = proc.info
                     pid = info.get('pid')
+                    if pid is None or pid <= 1 or pid in [s['pid'] for s in spirits]:
+                        continue
                     name = info.get('name') or "daemon"
-                    mem_bytes = info['memory_info'].rss if info.get('memory_info') else 0
+                    mem_info = info.get('memory_info')
+                    mem_bytes = mem_info.rss if mem_info else 0
                     mem_mb = mem_bytes / (1024 * 1024)
-                    if mem_mb > 150 and pid not in [s['pid'] for s in spirits]:
+
+                    if mem_mb > 150:
                         spirits.append({
                             "pid": pid,
                             "name": name,
@@ -93,7 +124,7 @@ class Exorcist:
 
         return spirits[:limit]
 
-    def render_spectral_report(self, spirits: List[Dict[str, Any]]):
+    def render_spectral_report(self, spirits: List[Dict[str, Any]]) -> None:
         """Render a formatted supernatural census of processes."""
         if not spirits:
             spectral_box(
@@ -120,15 +151,36 @@ class Exorcist:
 
         spectral_box("SPECTRAL PROCESS NECROPSY", lines, color=BLOOD_RED)
 
-    def exorcise(self, pid: int, force: bool = False) -> bool:
-        """Banish a process spirit via SIGTERM or SIGKILL."""
+    def exorcise(self, pid: int, force: bool = False) -> Tuple[bool, str]:
+        """
+        Banish a process spirit via SIGTERM or SIGKILL with safety checks.
+        Returns (success: bool, message: str).
+        """
         try:
             p = psutil.Process(pid)
+            proc_name = p.name()
+        except (psutil.NoSuchProcess, psutil.ZombieProcess):
+            return False, f"PID {pid} no longer exists in the process table (already vanished)."
+        except psutil.AccessDenied:
+            proc_name = "unknown"
+
+        # Check safety guardrails
+        blocked, reason = self.is_protected(pid, proc_name)
+        if blocked:
+            logger.warning("Banishment blocked for PID %d: %s", pid, reason)
+            return False, reason
+
+        try:
             if force:
                 p.kill()
             else:
                 p.terminate()
+
             p.wait(timeout=1.0)
-            return True
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.TimeoutExpired):
-            return False
+            return True, f"Spirit PID {pid} ({proc_name}) banished back into the void."
+        except psutil.TimeoutExpired:
+            return False, f"PID {pid} resisted SIGTERM. Use --force for SIGKILL."
+        except psutil.AccessDenied:
+            return False, f"Access denied banishing PID {pid}. Run with elevated privileges."
+        except Exception as exc:
+            return False, f"Error banishing PID {pid}: {exc}"

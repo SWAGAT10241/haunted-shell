@@ -3,11 +3,11 @@ Tests for haunted-shell.
 """
 
 import unittest
-from haunted_shell.ghost import GhostEngine
+
 from haunted_shell.exorcist import Exorcist
+from haunted_shell.ghost import GhostEngine
 from haunted_shell.shell_hook import generate_hook
-from haunted_shell.ui import zalgo, get_banner
-from haunted_shell.personas import get_persona
+from haunted_shell.ui import get_banner, zalgo
 
 
 class TestHauntedShell(unittest.TestCase):

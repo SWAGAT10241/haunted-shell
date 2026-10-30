@@ -1,5 +1,5 @@
 """
-Shell hook generator for integrating haunted-shell seamlessly into zsh or bash.
+Shell hook generator for integrating haunted-shell seamlessly into zsh, bash, or fish.
 """
 
 ZSH_HOOK_TEMPLATE = """# ─────────────────────────────────────────────────────────────
@@ -46,9 +46,23 @@ if [[ ! "$PROMPT_COMMAND" =~ "_haunted_prompt_command" ]]; then
 fi
 """
 
+FISH_HOOK_TEMPLATE = """# ─────────────────────────────────────────────────────────────
+#  H A U N T E D   S H E L L   F I S H   I N T E G R A T I O N
+#  Add this to ~/.config/fish/config.fish or run: haunt hook fish | source
+# ─────────────────────────────────────────────────────────────
+
+function __haunted_postexec --on-event fish_postexec
+    set -l last_status $status
+    haunt whisper "$argv" --exit-code "$last_status"
+end
+"""
+
 
 def generate_hook(shell_name: str = "zsh") -> str:
+    """Generate shell hook integration script for specified shell."""
     shell = shell_name.lower().strip()
-    if "bash" in shell:
+    if "fish" in shell:
+        return FISH_HOOK_TEMPLATE
+    elif "bash" in shell:
         return BASH_HOOK_TEMPLATE
     return ZSH_HOOK_TEMPLATE
