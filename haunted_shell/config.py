@@ -7,7 +7,7 @@ import json
 import os
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 CONFIG_DIR_NAME = "haunted-shell"
 CONFIG_FILE_NAME = "config.json"
@@ -27,6 +27,7 @@ class HauntedConfig:
     debug: bool = False
     ollama_timeout: float = 1.5
     history_file: str = field(default_factory=lambda: str(Path.home() / ".haunted_history"))
+    modifiers: List[str] = field(default_factory=list)
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert configuration to dictionary."""
