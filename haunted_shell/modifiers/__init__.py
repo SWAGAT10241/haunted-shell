@@ -4,17 +4,25 @@ Includes text visual effects, tone modifiers, and custom user-defined command ru
 """
 
 from typing import List, Optional
-from .text_modifiers import TEXT_MODIFIERS
-from .tone_modifiers import TONE_MODIFIERS, ToneModifier
+
 from .custom_rules import CustomRuleEngine
+from .text_modifiers import TEXT_MODIFIERS, modify_zalgo
+from .tone_modifiers import TONE_MODIFIERS, ToneModifier
+
+__all__ = [
+    "TEXT_MODIFIERS",
+    "TONE_MODIFIERS",
+    "ToneModifier",
+    "CustomRuleEngine",
+    "ALL_MODIFIERS",
+    "apply_all_modifiers",
+]
 
 ALL_MODIFIERS = list(TEXT_MODIFIERS.keys()) + list(TONE_MODIFIERS.keys()) + ["custom-rules"]
 
 
 def apply_all_modifiers(
-    text: str,
-    active_modifiers: Optional[List[str]] = None,
-    glitch_intensity: int = 1
+    text: str, active_modifiers: Optional[List[str]] = None, glitch_intensity: int = 1
 ) -> str:
     """Applies tone and text modifiers sequentially to spectral text."""
     if not active_modifiers:
@@ -33,7 +41,7 @@ def apply_all_modifiers(
         if mod_clean in TEXT_MODIFIERS:
             transform = TEXT_MODIFIERS[mod_clean]
             if mod_clean == "zalgo":
-                result = transform(result, intensity=glitch_intensity)
+                result = modify_zalgo(result, intensity=glitch_intensity)
             else:
                 result = transform(result)
 

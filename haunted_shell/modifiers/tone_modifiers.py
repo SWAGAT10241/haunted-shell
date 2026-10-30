@@ -3,12 +3,19 @@ Tone modifiers for haunted-shell.
 Modifies system prompts and overlays thematic phrasing onto the spectral persona.
 """
 
-from typing import Dict, List
 import random
+from typing import Dict, List
 
 
 class ToneModifier:
-    def __init__(self, name: str, description: str, prompt_addon: str, prefixes: List[str], suffixes: List[str]):
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        prompt_addon: str,
+        prefixes: List[str],
+        suffixes: List[str],
+    ):
         self.name = name
         self.description = description
         self.prompt_addon = prompt_addon
@@ -35,7 +42,7 @@ TONE_MODIFIERS: Dict[str, ToneModifier] = {
         suffixes=[
             "...That is not dead which can eternal lie in cache.",
             "...The stars are aligning against your process.",
-        ]
+        ],
     ),
     "cyberpunk": ToneModifier(
         name="cyberpunk",
@@ -49,7 +56,7 @@ TONE_MODIFIERS: Dict[str, ToneModifier] = {
         suffixes=[
             "// Packet trace severed by ghost protocol.",
             "// Memory leak detected in synthetic synapse.",
-        ]
+        ],
     ),
     "sarcastic": ToneModifier(
         name="sarcastic",
@@ -63,7 +70,7 @@ TONE_MODIFIERS: Dict[str, ToneModifier] = {
         suffixes=[
             "...Your CPU fan is weeping softly.",
             "...Have you tried turning your judgment off and on again?",
-        ]
+        ],
     ),
     "gothic": ToneModifier(
         name="gothic",
@@ -77,6 +84,6 @@ TONE_MODIFIERS: Dict[str, ToneModifier] = {
         suffixes=[
             "...All earthly memory fades like mist upon the moor.",
             "...Dust unto dust, byte unto unallocated void.",
-        ]
-    )
+        ],
+    ),
 }

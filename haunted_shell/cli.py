@@ -16,9 +16,9 @@ from .doctor import run_doctor
 from .exorcist import Exorcist
 from .ghost import GhostEngine
 from .logger import setup_logger
+from .modifiers import TEXT_MODIFIERS, TONE_MODIFIERS, CustomRuleEngine
 from .personas import available_persona_names, get_persona, list_personas
 from .shell_hook import generate_hook
-from .modifiers import TEXT_MODIFIERS, TONE_MODIFIERS, CustomRuleEngine
 from .ui import (
     BLOOD_RED,
     BOLD,

@@ -3,10 +3,10 @@ Custom user-defined command rule modifiers.
 Loads custom trigger rules from JSON/YAML configuration files.
 """
 
-import os
 import json
-from typing import Dict, List, Optional
+import os
 import random
+from typing import Dict, List, Optional
 
 DEFAULT_RULES = {
     "docker": [
@@ -34,7 +34,7 @@ DEFAULT_RULES = {
     ],
     "make": [
         "Invoking the ancient Makefile runes. Even the ancients feared the terror of missing tabs.",
-    ]
+    ],
 }
 
 
@@ -44,7 +44,7 @@ class CustomRuleEngine:
         self.config_paths = config_paths or [
             os.path.expanduser("~/.config/haunted-shell/modifiers.json"),
             os.path.expanduser("~/.haunted_modifiers.json"),
-            os.path.abspath("./haunted_modifiers.json")
+            os.path.abspath("./haunted_modifiers.json"),
         ]
         self.load_rules()
 
@@ -88,15 +88,15 @@ class CustomRuleEngine:
         sample = {
             "docker": [
                 "Custom haunting: Containers in the mist...",
-                "The ghost of an unpruned volume haunts /var/lib/docker."
+                "The ghost of an unpruned volume haunts /var/lib/docker.",
             ],
             "kubectl": [
                 "Pods dying across the cluster like autumn leaves...",
-                "CrashLoopBackOff: The spirit refuses to stabilize."
+                "CrashLoopBackOff: The spirit refuses to stabilize.",
             ],
             "terraform": [
                 "Terraform plan reveals the ruin you are about to unleash upon the cloud."
-            ]
+            ],
         }
         os.makedirs(os.path.dirname(os.path.abspath(target_path)), exist_ok=True)
         with open(target_path, "w", encoding="utf-8") as f:

@@ -10,13 +10,13 @@ import socket
 import time
 import urllib.error
 import urllib.request
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from .config import HauntedConfig
 from .logger import logger
+from .modifiers import TONE_MODIFIERS, CustomRuleEngine, apply_all_modifiers
 from .personas import BasePersona, get_persona
 from .ui import zalgo
-from .modifiers import apply_all_modifiers, CustomRuleEngine, TONE_MODIFIERS
 
 
 class GhostEngine:
@@ -153,9 +153,7 @@ class GhostEngine:
         if self.has_local_model and not self.force_offline:
             cwd_name = os.path.basename(os.getcwd()) or "/"
             tone_addons = [
-                TONE_MODIFIERS[m].prompt_addon
-                for m in self.modifiers
-                if m in TONE_MODIFIERS
+                TONE_MODIFIERS[m].prompt_addon for m in self.modifiers if m in TONE_MODIFIERS
             ]
             tone_instruction = f" Style instruction: {' '.join(tone_addons)}" if tone_addons else ""
 
@@ -188,7 +186,9 @@ class GhostEngine:
     def _decorate(self, text: str) -> str:
         """Apply active modifiers (tones and text effects) to the spectral text."""
         if self.modifiers:
-            return apply_all_modifiers(text, active_modifiers=self.modifiers, glitch_intensity=self.glitch_intensity)
+            return apply_all_modifiers(
+                text, active_modifiers=self.modifiers, glitch_intensity=self.glitch_intensity
+            )
 
         if self.glitch_intensity > 0:
             return zalgo(text, intensity=self.glitch_intensity)

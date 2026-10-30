@@ -2,8 +2,10 @@
 Unit tests for the custom modifier system in haunted-shell.
 """
 
-import os
 import unittest
+
+from haunted_shell.ghost import GhostEngine
+from haunted_shell.modifiers.custom_rules import CustomRuleEngine
 from haunted_shell.modifiers.text_modifiers import (
     modify_cursed,
     modify_matrix,
@@ -13,13 +15,9 @@ from haunted_shell.modifiers.text_modifiers import (
     modify_zalgo,
 )
 from haunted_shell.modifiers.tone_modifiers import TONE_MODIFIERS
-from haunted_shell.modifiers.custom_rules import CustomRuleEngine
-from haunted_shell.modifiers import apply_all_modifiers
-from haunted_shell.ghost import GhostEngine
 
 
 class TestModifierSystem(unittest.TestCase):
-
     def test_text_modifiers(self):
         sample = "Ghost in the Machine"
         self.assertNotEqual(modify_cursed(sample), sample)
@@ -43,7 +41,12 @@ class TestModifierSystem(unittest.TestCase):
 
         hit_npm = engine.match("npm install lodash")
         self.assertIsNotNone(hit_npm)
-        self.assertTrue(any(w in hit_npm.lower() for w in ["strangers", "node_modules", "black hole", "registry"]))
+        self.assertTrue(
+            any(
+                w in hit_npm.lower()
+                for w in ["strangers", "node_modules", "black hole", "registry"]
+            )
+        )
 
     def test_ghost_engine_with_modifiers(self):
         engine = GhostEngine(force_offline=True, modifiers=["vaporwave", "sarcastic"])
